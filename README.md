@@ -1,2 +1,3 @@
-# argo-data-submission
-Workflow to submit genomic data to ARGO RDPC for processing
+# ARGO Data Submission
+
+Update this to describe your awesome project.
