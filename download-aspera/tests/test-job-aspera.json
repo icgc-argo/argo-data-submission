@@ -1,0 +1,6 @@
+{
+    "project" : "TEST",
+    "input_file" : "/aspera-test-dir-large/100MB", 
+    "cpus": 1,
+    "mem": 0.5
+}

@@ -1,0 +1,37 @@
+{
+    "name": "download-aspera",
+    "version": "0.1.0",
+    "description": "Aspera download client",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "sequence",
+        "download"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edsu7/argo-data-submission.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "quay.io",
+                "type": "docker",
+                "org": "edsu7",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "edsu7",
+            "email": "edmund.su@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "bugReport": "https://github.com/edsu7/argo-data-submission/issues",
+    "homepage": "https://github.com/edsu7/argo-data-submission#readme"
+}
