@@ -1,0 +1,26 @@
+{
+    "name": "argo-data-submission-wf",
+    "version": "0.1.0",
+    "description": "Argo data submission workflow",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "download"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edsu7/argo-data-submission.git"
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Edmund Su",
+            "email": "edmund.su@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "bugReport": "https://github.com/edsu7/argo-data-submission/issues",
+    "homepage": "https://github.com/edsu7/argo-data-submission#readme"
+}
