@@ -61,7 +61,6 @@ docs/_build
 .bootstrap
 .appveyor.token
 *.bak
-*.log
 .vscode
 .python-version
 .nextflow*

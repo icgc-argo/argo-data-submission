@@ -37,9 +37,9 @@ nextflow.enable.dsl = 2
 version = '0.1.0'  // package version
 
 container = [
-    'ghcr.io': 'ghcr.io/edsu7/argo-data-submission.generate-json'
+    'ghrc.io': 'ghrc.io/edsu7/argo-data-submission.differentiate-json'
 ]
-default_container_registry = 'ghcr.io'
+default_container_registry = 'ghrc.io'
 /********************************************************************/
 
 // universal params
@@ -47,19 +47,45 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
+params.cpus = 1
+params.mem = 1  // GB
+params.publish_dir = ""  // set to empty string will disable publishDir
+
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.expected_output = ""
+params.output_pattern = "*"  // output file name pattern
 
-include { generateJson } from '../main'
+params.user_generated_json="NO_FILE"
+params.auto_generated_json="NO_FILE"
+
+process differentiateJson {
+  errorStrategy = 'ignore'
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  errorStrategy 'terminate'
+  cpus params.cpus
+  memory "${params.mem} GB"
+
+  input:  // input, make update as needed
+    path user_generated_json
+    path auto_generated_json
+  output:
+    path "ERRORS.log", emit: error_log 
+  script:
+    """
+    python3.6 /tools/main.py \\
+      -a ${user_generated_json} \\
+      -b ${auto_generated_json} || true
+    """
+}
 
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
   input:
-    path output_file
-    path expected_file
+    path output
+    path expected_output
 
   output:
     stdout()
@@ -70,13 +96,7 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
+    diff ${output} ${expected_output} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -84,16 +104,18 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    auto_generated_json
+    user_generated_json
     expected_output
 
   main:
-    generateJson(
-      input_file
+    differentiateJson(
+      auto_generated_json,
+      user_generated_json
     )
 
     file_smart_diff(
-      generateJson.out.output_file,
+      differentiateJson.out.error_log,
       expected_output
     )
 }
@@ -101,7 +123,8 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.auto_generated_json,
+    params.user_generated_json,
+    params.expected_output
   )
 }

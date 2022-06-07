@@ -1,4 +1,5 @@
 {
-	"auto_generated_json":"/home/ubuntu/downloads/test_workflow/generate-json/auto_generated.json",
-       "user_generated_json":"/home/ubuntu/downloads/test_workflow/differentiate-json/bad.json"
+	"auto_generated_json":"input/auto_generated.json",
+       "user_generated_json":"input/bad.json",
+       "expected_output":"expected/expected_ERRORS.log"
 }
