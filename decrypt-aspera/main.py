@@ -55,7 +55,7 @@ def main():
     else:
         subprocess.run("touch DECRYPT.SUCCESS",stdout=subprocess.PIPE,shell=True)
 
-    cmd="md5sum "+re.sub('.c4gh$','',results.file)+" | egrep -o '[0-9a-f]{32}'  > "+re.sub('.c4gh$','.md5',results.file)
+    cmd="md5sum "+re.sub('.c4gh$','',results.file)+" | egrep -o '^[0-9a-f]{32}'  > "+re.sub('.c4gh$','.md5',results.file)
     result=subprocess.run(cmd,stdout=subprocess.PIPE,shell=True)
     if result.returncode!=0:
         subprocess.run("touch MD5SUM.FAILURE",stdout=subprocess.PIPE,shell=True)

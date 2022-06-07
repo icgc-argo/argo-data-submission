@@ -37,9 +37,9 @@ nextflow.enable.dsl = 2
 version = '0.1.0'  // package version
 
 container = [
-    'ghcr.io': 'ghcr.io/edsu7/argo-data-submission.generate-json'
+    'ghrc.io': 'ghrc.io/edsu7/argo-data-submission.decrypt-aspera'
 ]
-default_container_registry = 'ghcr.io'
+default_container_registry = 'ghrc.io'
 /********************************************************************/
 
 // universal params
@@ -47,12 +47,39 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
+params.cpus = 1
+params.mem = 1  // GB
+params.publish_dir = ""  // set to empty string will disable publishDir
+
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
 params.expected_output = "./expected/mystery_contents.txt"
 
-include { decryptAspera } from '../main'
+process decryptAspera {
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  errorStrategy 'terminate'
+  cpus params.cpus
+  memory "${params.mem} GB"
 
+  input:  // input, make update as needed
+    path file
+    path c4gh_secret_key
+  output:  // output, make update as needed
+    path "*.md5", emit: md5_file
+    path "*.{bam,cram,fastq.gz,fq.gz,txt}", emit: output_files
+
+  script:
+    // add and initialize variables here as needed
+    """
+    export C4GH_SECRET_KEY=${c4gh_secret_key}
+    export C4GH_PASSPHRASE='' 
+    python3.6 /tools/main.py \\
+      -f ${file} \\
+      > decrypt.log 2>&1
+
+    """
+}
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -70,7 +97,7 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    diff normalized_output normalized_expected \
+    cat ${output_file} ${expected_file} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -79,15 +106,17 @@ process file_smart_diff {
 workflow checker {
   take:
     input_file
+    c4gh_secret_key
     expected_output
 
   main:
     decryptAspera(
-      input_file
-    )
+    input_file,
+    params.c4gh_secret_key
+   )
 
     file_smart_diff(
-      decryptAspera.out.output_file,
+      decryptAspera.out.output_files,
       expected_output
     )
 }
@@ -95,7 +124,8 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.file,
+    params.c4gh_secret_key,
+    params.expected_output
   )
 }
