@@ -70,7 +70,7 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    diff normalized_output normalized_expected \
+    diff ${output_file} ${expected_file} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -78,12 +78,42 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    program_id
+    submitter_donor_id
+    gender
+    submitter_specimen_id
+    specimen_tissue_source
+    tumour_normal_designation
+    specimen_type
+    submitter_sample_id
+    sample_type
+    matchedNormalSubmitterSampleId
+    EGAX
+    EGAN
+    EGAR
+    EGAF
+    output_files
+    md5_files
     expected_output
 
   main:
-    generateJson(
-      input_file
+      generateJson(
+	program_id,
+	submitter_donor_id,
+	gender,
+	submitter_specimen_id,
+	specimen_tissue_source,
+	tumour_normal_designation,
+	specimen_type,
+	submitter_sample_id,
+	sample_type,
+	matchedNormalSubmitterSampleId,
+	EGAX,
+	EGAN,
+	EGAR,
+	EGAF,
+	output_files,
+	md5_files
     )
 
     file_smart_diff(
@@ -95,7 +125,22 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.program_id,
+    params.submitter_donor_id,
+    params.gender,
+    params.submitter_specimen_id,
+    params.specimen_tissue_source,
+    params.tumour_normal_designation,
+    params.specimen_type,
+    params.submitter_sample_id,
+    params.sample_type,
+    params.matchedNormalSubmitterSampleId,
+    params.EGAX,
+    params.EGAN,
+    params.EGAR,
+    params.EGAF,
+    params.output_files,
+    params.md5_files,
+    params.expected_output
   )
 }

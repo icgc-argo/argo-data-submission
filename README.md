@@ -7,6 +7,8 @@ Given a CSV file of:
 2. EGA ids (minimum EGAFs) 
 3. metadata json payloads (Optional. If provided will verify elements otherwise will auto generate)
 
+![image](https://user-images.githubusercontent.com/22638361/172482882-c1216e61-8153-49f7-8cde-718ceec5d055.png)
+
 Run generate_params_json.py for nextflow params file specific to one sample:
 ```
 python3 generate_params_json.py -o ${working_directory} -c ${input_csv} -s {sample_of_interest}
@@ -41,5 +43,4 @@ argo-data-submission/main.nf \\
 -profile pyega3 \\
 --api_token ${ICGC_ARGO_API_TOKEN}
 ```
-(Profiles to be added to avoid populating variables related to unused method)
 

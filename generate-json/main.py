@@ -255,7 +255,7 @@ def getReadLength(file,rg_id,read,threads):
     return(int(numpy.median([len(line) for line in result.stdout.decode("utf-8").split("\n")[:-1]])))
     
 def getMd5(md5):
-    cmd="cat "+md5
+    cmd="cat "+md5+" | egrep -o '^[0-9a-f]{32}' "
 
     print("Running - "+cmd)
     result=subprocess.run(cmd,stdout=subprocess.PIPE,shell=True)
