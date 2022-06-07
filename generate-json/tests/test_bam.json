@@ -14,5 +14,6 @@
 	"EGAR":"EGAR00000000001,EGAR00000000002,EGAR00000000003",
 	"EGAF":"EGAF00000000001",
 	"output_files":"input/anon_chr1_complete.bam",
-	"md5_files":"input/anon_chr1_complete.bam.md5"
+	"md5_files":"input/anon_chr1_complete.bam.md5",
+        "expected_output":"expected/expected_output.json"
 }
