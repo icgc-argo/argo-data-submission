@@ -46,18 +46,53 @@ default_container_registry = 'ghrc.io'
 params.container_registry = ""
 params.container_version = ""
 params.container = ""
-params.expected_output="expected/100MB.md5"
 // tool specific parmas go here, add / change as needed
 
-include { downloadAspera } from '../main'
+params.cpus = 1
+params.mem = 1  // GB
+params.publish_dir = ""  // set to empty string will disable publishDir
 
+
+// tool specific parmas go here, add / change as needed
+params.input_file = ""
+params.output_pattern = "*"  // output file name pattern
+
+
+process downloadAspera {
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  errorStrategy 'terminate'
+  cpus params.cpus
+  memory "${params.mem} GB"
+
+  input:  // input, make update as needed
+    val input_file
+    val EGAF
+    val project
+  output:  // output, make update as needed
+    path "${EGAF}/100MB", emit: output_files
+
+  script:
+    // add and initialize variables here as needed
+    """
+    mkdir -p ${EGAF}
+    export ASCP_SCP_USER='aspera'
+    export ASCP_SCP_HOST='demo.asperasoft.com'
+    export ASPERA_SCP_PASS='demoaspera'
+    python3.6 /tools/main.py \\
+      -f ${input_file} \\
+      -p ${project} \\
+      -o ${EGAF} \\
+      > download.log 2>&1
+
+    """
+}
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
   input:
     path output_file
-    path expected_file
 
   output:
     stdout()
@@ -68,8 +103,8 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file} | cut -f1 -d' ' > normalized_output
-    cat ${expected_file} | cut -f1 -d' ' > normalized_expected
+    md5sum ${output_file} | egrep -o '^[0-9a-f]{32}' > normalized_output
+    echo "29df96fc47f09023bf00a044585fc697" > normalized_expected
     
     diff normalized_output normalized_expected \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
@@ -81,16 +116,16 @@ workflow checker {
   take:
     project
     input_file
-    expected_output
+    EGAF
 
   main:
    downloadAspera(
     input_file,
-    project
+    project,
+    EGAF
    )
     file_smart_diff(
-      downloadAspera.out.output_file,
-      expected_output
+      downloadAspera.out.output_files
     )
 }
 
@@ -99,6 +134,6 @@ workflow {
   checker(
     params.project,
     params.input_file,
-    params.expected_output
+    params.EGAF
   )
 }
