@@ -52,7 +52,13 @@ def main():
             
     warnings=[]
     errors=[]
-    check_values(up_dict,ag_dict,warnings,errors,[])
+    exceptions=[
+            "sample_barcode",
+            "insert_size",
+            "read_group_id_in_bam",
+            "legacyAnalysisId"
+            ]
+    check_values(up_dict,ag_dict,warnings,errors,exceptions)
 
     if len(warnings)>0:
         with open('WARNINGS.log', 'w') as f:
