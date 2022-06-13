@@ -62,12 +62,12 @@ process downloadPyega3 {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    val project
     val ega_id
+    val project
 
   output:  // output, make update as needed
     path "${ega_id}/*.md5", emit: md5_file
-    path "${ega_id}/*.{.bam,.cram,.fastq.gz,.fq.gz}", emit: output_file
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz}", emit: output_files
 
   script:
 
@@ -86,7 +86,7 @@ process downloadPyega3 {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   downloadPyega3(
-    params.project,
-    params.ega_id
+    params.ega_id,
+    params.project
   )
 }

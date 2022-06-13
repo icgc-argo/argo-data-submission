@@ -50,11 +50,14 @@ params.tumour_normal_designation=''
 params.specimen_type=''
 params.submitter_sample_id=''
 params.sample_type=''
-params.matchedNormalSubmitterSampleId=''
+params.matched_normal_submitter_sample_id=''
 params.EGAX=''
 params.EGAN=''
 params.EGAR=''
 params.EGAF=''
+params.experimental_strategy=''
+params.EGAD=''
+params.EGAS=''
 params.json=''
 params.c4gh_secret_key='NO_FILE'
 params.aspera_file='NO_FILE'
@@ -109,11 +112,14 @@ workflow ArgoDataSubmissionWf {
     specimen_type
     submitter_sample_id
     sample_type
-    matchedNormalSubmitterSampleId
+    matched_normal_submitter_sample_id
     EGAX
     EGAN
     EGAR
     EGAF
+    experimental_strategy
+    EGAD
+    EGAS
     json
     aspera_file
     c4gh_secret_key
@@ -142,11 +148,14 @@ workflow ArgoDataSubmissionWf {
       specimen_type,
       submitter_sample_id,
       sample_type,
-      matchedNormalSubmitterSampleId,
+      matched_normal_submitter_sample_id,
       EGAX,
       EGAN,
       EGAR,
       EGAF,
+      experimental_strategy,
+      EGAD,
+      EGAS,
       output_files,
       output_md5
     )
@@ -162,7 +171,7 @@ workflow ArgoDataSubmissionWf {
     SongScoreUpload(
       program_id,
       output_json,
-      output_files.collect()
+      output_files
     )
   
     emit:
@@ -185,11 +194,14 @@ workflow {
     params.specimen_type,
     params.submitter_sample_id,
     params.sample_type,
-    params.matchedNormalSubmitterSampleId,
+    params.matched_normal_submitter_sample_id,
     params.EGAX,
     params.EGAN,
     params.EGAR,
     params.EGAF,
+    params.experimental_strategy,
+    params.EGAD,
+    params.EGAS,
     params.json,
     params.aspera_file,
     params.c4gh_secret_key

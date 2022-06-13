@@ -27,10 +27,13 @@ def main():
     "submitter_sample_id",
     "sample_type",
     "matchedNormalSubmitterSampleId",
+    "experimental_strategy"
     "EGAX",
     "EGAN",
     "EGAR",
     "EGAF",
+    "EGAD",
+    "EGAS",
     "json"]:
         if col in csv_df.columns.values.tolist():
             output_dict[col]=csv_df.loc[ind,col]
@@ -39,20 +42,19 @@ def main():
 
     ###default values
     output_dict["method"]="Aspera"
-    output_dict["download"]= {
-    "song_url": "https://song.rdpc-qa.cancercollaboratory.org",
-    "song_cpus": 2,
-    "song_mem": 2,
-    "score_url": "https://score.rdpc-qa.cancercollaboratory.org",
-    "score_cpus": 3,
-    "score_mem": 8
+    output_dict["song_url"]="https://song.rdpc-qa.cancercollaboratory.org"
+    output_dict["song_cpus"]=2
+    output_dict["song_mem"]=2
+    output_dict["score_url"]="https://score.rdpc-qa.cancercollaboratory.org"
+    output_dict["score_cpus"]=3
+    output_dict["score_mem"]=8
     }
     ###
     with open(results.output_dir+"/"+results.submitter_sample_id+".json", "w") as out_json:
         json.dump(output_dict,out_json,indent=2)
     
-    print("Ensure the following environment variables to set or \"\":")
-    print("ASCP_SCP_HOST\nASCP_SCP_USER\nASPERA_SCP_PASS\nPYEGA3_EGA_USER\nPYEGA3_EGA_PASS\n")
+    print("Ensure the following environment variables are set :")
+    print("ASCP_SCP_HOST\nASCP_SCP_USER\nASPERA_SCP_PASS\nPYEGA3_EGA_USER\nPYEGA3_EGA_PASS\nC4GH_PASSPHRASE")
     print("To run:")
     print(
         "nextflow "+\

@@ -53,6 +53,25 @@ params.expected_output = ""
 
 include { generateJson } from '../main'
 
+params.program_id=''
+params.submitter_donor_id=''
+params.gender=''
+params.submitter_specimen_id=''
+params.specimen_tissue_source=''
+params.tumour_normal_designation=''
+params.specimen_type=''
+params.submitter_sample_id=''
+params.sample_type=''
+params.matched_normal_submitter_sample_id=''
+params.EGAX=''
+params.EGAN=''
+params.EGAR=''
+params.EGAF=''
+params.experimental_strategy=''
+params.EGAD=''
+params.EGAS=''
+params.output_files=''
+params.md5_files=''
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -87,11 +106,14 @@ workflow checker {
     specimen_type
     submitter_sample_id
     sample_type
-    matchedNormalSubmitterSampleId
+    matched_normal_submitter_sample_id
     EGAX
     EGAN
     EGAR
     EGAF
+    experimental_strategy
+    EGAD
+    EGAS
     output_files
     md5_files
     expected_output
@@ -107,11 +129,14 @@ workflow checker {
 	specimen_type,
 	submitter_sample_id,
 	sample_type,
-	matchedNormalSubmitterSampleId,
+	matched_normal_submitter_sample_id,
 	EGAX,
 	EGAN,
 	EGAR,
 	EGAF,
+        experimental_strategy,
+        EGAD,
+        EGAS,
 	output_files,
 	md5_files
     )
@@ -134,11 +159,14 @@ workflow {
     params.specimen_type,
     params.submitter_sample_id,
     params.sample_type,
-    params.matchedNormalSubmitterSampleId,
+    params.matched_normal_submitter_sample_id,
     params.EGAX,
     params.EGAN,
     params.EGAR,
     params.EGAF,
+    params.experimental_strategy,
+    params.EGAD,
+    params.EGAS,
     params.output_files,
     params.md5_files,
     params.expected_output

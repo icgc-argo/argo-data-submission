@@ -52,6 +52,25 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 params.input_file = ""
 params.output_pattern = "*"  // output file name pattern
 
+params.program_id=''
+params.submitter_donor_id=''
+params.gender=''
+params.submitter_specimen_id=''
+params.specimen_tissue_source=''
+params.tumour_normal_designation=''
+params.specimen_type=''
+params.submitter_sample_id=''
+params.sample_type=''
+params.matched_normal_submitter_sample_id=''
+params.EGAX=''
+params.EGAN=''
+params.EGAR=''
+params.EGAF=''
+params.experimental_strategy=''
+params.EGAD=''
+params.EGAS=''
+params.output_files=''
+params.md5_files=''
 
 process generateJson {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -70,11 +89,14 @@ process generateJson {
     val specimen_type
     val submitter_sample_id
     val sample_type
-    val matchedNormalSubmitterSampleId
+    val matched_normal_submitter_sample_id
     val EGAX
     val EGAN
     val EGAR
     val EGAF
+    val experimental_strategy
+    val EGAD 
+    val EGAS
     path output_files
     path md5_files
 
@@ -94,19 +116,19 @@ process generateJson {
         --specimen_type '${specimen_type}' \\
         --submitter_sample_id '${submitter_sample_id}' \\
         --sample_type '${sample_type}' \\
-        --matchedNormalSubmitterSampleId '${matchedNormalSubmitterSampleId}' \\
+        --matched_normal_submitter_sample_id '${matched_normal_submitter_sample_id}' \\
         --EGAX '${EGAX}' \\
         --EGAN '${EGAN}' \\
         --EGAR '${EGAR}' \\
         --EGAF '${EGAF}' \\
-        --EGAD '' \\
-        --EGAD '' \\
+	--experimental_strategy '${experimental_strategy}' \\
+        --EGAD '${EGAD}' \\
+        --EGAS '${EGAS}' \\
         --output_files '${output_files}' \\
         --md5 '${md5_files}' \\
     	> generate_json.log 2>&1
     """
 }
-
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
@@ -121,11 +143,14 @@ workflow {
     params.specimen_type,
     params.submitter_sample_id,
     params.sample_type,
-    params.matchedNormalSubmitterSampleId,
+    params.matched_normal_submitter_sample_id,
     params.EGAX,
     params.EGAN,
     params.EGAR,
     params.EGAF,
+    params.experimental_strategy,
+    params.EGAD,
+    params.EGAS,
     params.output_files,
     params.md5_files
   )

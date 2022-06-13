@@ -1,6 +1,6 @@
 {
   "studyId": "TEST-PR",
-  "read_group_count": 4,
+  "read_group_count": 10,
   "analysisType": {
     "name": "sequencing_experiment"
   },
@@ -31,11 +31,276 @@
   },
   "files": [
     {
+      "fileName": "CC3D8AAWW_5_TATAAT_1.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 177,
+      "fileMd5sum": "b7f9769b549ca8d978e11465b32bac22",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "CC3D8AAWW_5_TATAAT_2.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 177,
+      "fileMd5sum": "cde8d1947fc9599f539f4e68e42cce20",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "CC3D8ANXX_5_TATAAT_1.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 177,
+      "fileMd5sum": "cee763f914cf18d24cd25561ea05a477",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "CC3D8ANXX_5_TATAAT_2.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 178,
+      "fileMd5sum": "eae051348b0b901beaba5f29652fbeea",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "D0RH0.2_r1.fq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 1872,
+      "fileMd5sum": "4a48830091b9c578d2f0c0b268e9017a",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "D0RH0.2_r2.fq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 1894,
+      "fileMd5sum": "f1902f369fc68011bf0f2eaae3ba0970",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "SRR001666_1.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 184,
+      "fileMd5sum": "a0f5764107d0ecea540091bd60f31dc4",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "SRR001666_2.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 190,
+      "fileMd5sum": "b2906b080dd3972fcdef3ebf640ae1f4",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "SRR001667.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 233,
+      "fileMd5sum": "124abf499cd9b180430d8f7f964d4721",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
       "fileName": "anon_chr1_complete.bam",
       "fileType": "BAM",
       "dataType": "Submitted Reads",
       "fileSize": 258104,
       "fileMd5sum": "601d12fbfea8d9b8b2f33f35a1b1bd53",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "tmp_1.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 90,
+      "fileMd5sum": "b5d8e66e19fcf3821b3b196e2c7299b9",
+      "fileAccess": "controlled",
+      "info": {
+        "experiment": [
+          "EGAX00000000001"
+        ],
+        "sample": [
+          "EGAN00000000001"
+        ],
+        "run": [
+          "EGAR00000000001",
+          "EGAR00000000002",
+          "EGAR00000000003"
+        ],
+        "file": [
+          "EGAF00000000001"
+        ]
+      }
+    },
+    {
+      "fileName": "tmp_2.fastq.gz",
+      "fileType": "FASTQ",
+      "dataType": "Submitted Reads",
+      "fileSize": 90,
+      "fileMd5sum": "1b4a5e480080248cbbce81703d0759b7",
+      "fileAccess": "controlled",
       "info": {
         "experiment": [
           "EGAX00000000001"
@@ -106,6 +371,78 @@
       "read_length_r2": 101,
       "library_name": "RNA-Seq:QCMG:QCMG:130711_7001243_0176_BD2B86ACXX.lane_6.CTTGTA:RNA-Seq:QCMG:Illumina",
       "sample_barcode": null
+    },
+    {
+      "submitter_read_group_id": "HS25_241:1:1:5",
+      "platform_unit": "HS25_241:1:1:5",
+      "barcode": "TATAAT",
+      "is_paired_end": true,
+      "file_1": "CC3D8AAWW_5_TATAAT_1.fastq.gz",
+      "file_2": "CC3D8AAWW_5_TATAAT_2.fastq.gz",
+      "read_length_r1": 76,
+      "read_length_r2": 76,
+      "insert_size": null,
+      "library_name": "WGS:QCMG:TEST_SPECIMEN"
+    },
+    {
+      "submitter_read_group_id": "HS25_241:2:2:5",
+      "platform_unit": "HS25_241:2:2:5",
+      "barcode": "TATAAT",
+      "is_paired_end": true,
+      "file_1": "CC3D8ANXX_5_TATAAT_1.fastq.gz",
+      "file_2": "CC3D8ANXX_5_TATAAT_2.fastq.gz",
+      "read_length_r1": 76,
+      "read_length_r2": 76,
+      "insert_size": null,
+      "library_name": "WGS:QCMG:TEST_SPECIMEN"
+    },
+    {
+      "submitter_read_group_id": "D0RH0ACXX120402:2:2:2",
+      "platform_unit": "D0RH0ACXX120402:2:2:2",
+      "barcode": null,
+      "is_paired_end": true,
+      "file_1": "D0RH0.2_r1.fq.gz",
+      "file_2": "D0RH0.2_r2.fq.gz",
+      "read_length_r1": 76,
+      "read_length_r2": 76,
+      "insert_size": null,
+      "library_name": "WGS:QCMG:TEST_SPECIMEN"
+    },
+    {
+      "submitter_read_group_id": "SRR001666",
+      "platform_unit": "SRR001666",
+      "barcode": null,
+      "is_paired_end": true,
+      "file_1": "SRR001666_1.fastq.gz",
+      "file_2": "SRR001666_2.fastq.gz",
+      "read_length_r1": 36,
+      "read_length_r2": 36,
+      "insert_size": null,
+      "library_name": "WGS:QCMG:TEST_SPECIMEN"
+    },
+    {
+      "submitter_read_group_id": "SRR001667",
+      "platform_unit": "SRR001667",
+      "barcode": null,
+      "is_paired_end": false,
+      "file_1": "SRR001667.fastq.gz",
+      "read_length_r1": 72,
+      "file_2": null,
+      "read_length_r2": null,
+      "insert_size": null,
+      "library_name": "WGS:QCMG:TEST_SPECIMEN"
+    },
+    {
+      "submitter_read_group_id": "EAS139:136:FC706VJ:2",
+      "platform_unit": "EAS139:136:FC706VJ:2",
+      "barcode": null,
+      "is_paired_end": true,
+      "file_1": "tmp_1.fastq.gz",
+      "file_2": "tmp_2.fastq.gz",
+      "read_length_r1": 11,
+      "read_length_r2": 11,
+      "insert_size": null,
+      "library_name": "WGS:QCMG:TEST_SPECIMEN"
     }
   ]
 }
