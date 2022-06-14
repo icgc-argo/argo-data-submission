@@ -30,8 +30,4 @@ ENTRYPOINT ["/usr/bin/env"]
 
 USER ubuntu
 
-RUN groupadd -g 1000 ubuntu &&\
-    useradd -l -u 1000 -g ubuntu ubuntu &&\
-    install -d -m 0755 -o ubuntu -g ubuntu /home/ubuntu
-
 CMD ["/bin/bash"]
