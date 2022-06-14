@@ -1,0 +1,5 @@
+{
+	"auto_generated_json":"input/auto_generated.json",
+       "user_generated_json":"input/bad.json",
+       "expected_output":"expected/expected_ERRORS.txt",
+}

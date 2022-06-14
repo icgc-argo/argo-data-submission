@@ -16,7 +16,7 @@
             {
                 "registry": "ghrc.io",
                 "type": "docker",
-                "org": "icgc-argo",
+                "org": "Edmund Su",
                 "default": true
             }
         ]
@@ -25,7 +25,7 @@
     "devDependencies": [],
     "contributors": [
         {
-            "name": "Edmund Su",
+            "name": "edsu7",
             "email": "edmund.su@oicr.on.ca"
         }
     ],
