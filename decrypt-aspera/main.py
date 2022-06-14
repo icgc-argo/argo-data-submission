@@ -33,23 +33,31 @@ def main():
 
     This is auto-generated Python code, please update as needed!
     """
+    parser = argparse.ArgumentParser(description='differentiate JSON metadata payload for SONG upload')
+    parser.add_argument('-f', '--file', dest="file", help="auto generated json", required=True)
 
-    parser = argparse.ArgumentParser(description='Tool: decrypt-aspera')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
-    args = parser.parse_args()
+    results = parser.parse_args()
+    
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
+    cmd="cat "+results.file+" | crypt4gh decrypt > "+re.sub('.c4gh$','',results.file)
+    result=subprocess.run(cmd,stdout=subprocess.PIPE,shell=True)
 
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
+    if result.returncode!=0:
+        subprocess.run("touch DECRYPT.FAILURE",stdout=subprocess.PIPE,shell=True)
+        subprocess.run("touch MD5SUM.FAILURE",stdout=subprocess.PIPE,shell=True)
+        raise ValueError("Unable to decrypt  "+results.file)
+    else:
+        subprocess.run("touch DECRYPT.SUCCESS",stdout=subprocess.PIPE,shell=True)
 
-    subprocess.run(f"cp {args.input_file} {args.output_dir}/", shell=True, check=True)
-
-
+    cmd="md5sum "+re.sub('.c4gh$','',results.file)+" | egrep -o '^[0-9a-f]{32}'  > "+re.sub('.c4gh$','.md5',results.file)
+    result=subprocess.run(cmd,stdout=subprocess.PIPE,shell=True)
+    if result.returncode!=0:
+        subprocess.run("touch MD5SUM.FAILURE",stdout=subprocess.PIPE,shell=True)
+        raise ValueError("Md5sum not generated "+results.file)
+    else:
+        subprocess.run("touch MD5SUM.SUCCESS",stdout=subprocess.PIPE,shell=True)
+        
+    
+    
 if __name__ == "__main__":
     main()
-

@@ -1,20 +1,25 @@
 #!/usr/bin/env nextflow
 
 /*
-  Copyright (C) 2022,  icgc-argo
+  Copyright (c) 2022, Your Organization Name
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Affero General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU Affero General Public License for more details.
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
 
-  You should have received a copy of the GNU Affero General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
 
   Authors:
     Edmund Su
@@ -32,9 +37,9 @@ nextflow.enable.dsl = 2
 version = '0.1.0'  // package version
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.decrypt-aspera'
+    'ghrc.io': 'ghrc.io/icgc-argo/argo-data-submission.decrypt-aspera'
 ]
-default_container_registry = 'ghcr.io'
+default_container_registry = 'ghrc.io'
 /********************************************************************/
 
 // universal params
@@ -42,12 +47,39 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
+params.cpus = 1
+params.mem = 1  // GB
+params.publish_dir = ""  // set to empty string will disable publishDir
+
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.expected_output = ""
+params.expected_output = "./expected/mystery_contents.txt"
 
-include { decryptAspera } from '../main'
+process decryptAspera {
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  errorStrategy 'terminate'
+  cpus params.cpus
+  memory "${params.mem} GB"
 
+  input:  // input, make update as needed
+    path file
+    path c4gh_secret_key
+  output:  // output, make update as needed
+    path "*.md5", emit: md5_file
+    path "*.{bam,cram,fastq.gz,fq.gz,txt}", emit: output_files
+
+  script:
+    // add and initialize variables here as needed
+    """
+    export C4GH_SECRET_KEY=${c4gh_secret_key}
+    export C4GH_PASSPHRASE='' 
+    python3.6 /tools/main.py \\
+      -f ${file} \\
+      > decrypt.log 2>&1
+
+    """
+}
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -65,13 +97,7 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
+    cat ${output_file} ${expected_file} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -80,15 +106,17 @@ process file_smart_diff {
 workflow checker {
   take:
     input_file
+    c4gh_secret_key
     expected_output
 
   main:
     decryptAspera(
-      input_file
-    )
+    input_file,
+    params.c4gh_secret_key
+   )
 
     file_smart_diff(
-      decryptAspera.out.output_file,
+      decryptAspera.out.output_files,
       expected_output
     )
 }
@@ -96,7 +124,8 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.file,
+    params.c4gh_secret_key,
+    params.expected_output
   )
 }
