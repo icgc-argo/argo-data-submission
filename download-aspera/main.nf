@@ -22,7 +22,7 @@
   SOFTWARE.
 
   Authors:
-    edsu7
+    Edmund Su
 */
 
 /********************************************************************/
@@ -32,7 +32,7 @@ nextflow.enable.dsl = 2
 version = '0.1.0'  // package version
 
 container = [
-    'ghrc.io': 'ghrc.io/edsu7/argo-data-submission.download-aspera'
+    'ghrc.io': 'ghrc.io/icgc-argo/argo-data-submission.download-aspera'
 ]
 default_container_registry = 'ghrc.io'
 /********************************************************************/

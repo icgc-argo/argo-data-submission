@@ -9,14 +9,14 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/edsu7/argo-data-submission.git"
+        "url": "https://github.com/icgc-argo/argo-data-submission.git"
     },
     "container": {
         "registries": [
             {
                 "registry": "ghcr.io",
                 "type": "docker",
-                "org": "edsu7",
+                "org": "icgc-argo",
                 "default": true
             }
         ]
@@ -25,11 +25,11 @@
     "devDependencies": [],
     "contributors": [
         {
-            "name": "edsu7",
-            "email": "edmund.su@gmail.com"
+            "name": "Edmund Su",
+            "email": "edmund.su@oicr.on.ca"
         }
     ],
     "license": "MIT",
-    "bugReport": "https://github.com/edsu7/argo-data-submission/issues",
-    "homepage": "https://github.com/edsu7/argo-data-submission#readme"
+    "bugReport": "https://github.com/icgc-argo/argo-data-submission/issues",
+    "homepage": "https://github.com/icgc-argo/argo-data-submission#readme"
 }

@@ -22,7 +22,7 @@
   SOFTWARE.
 
   Authors:
-    edsu7
+    Edmund Su
 */
 
 /*
@@ -37,7 +37,7 @@ nextflow.enable.dsl = 2
 version = '0.1.0'  // package version
 
 container = [
-    'ghcr.io': 'ghcr.io/edsu7/argo-data-submission.generate-json'
+    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.generate-json'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
