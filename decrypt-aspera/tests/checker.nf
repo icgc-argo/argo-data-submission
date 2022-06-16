@@ -37,9 +37,9 @@ nextflow.enable.dsl = 2
 version = '0.1.0'  // package version
 
 container = [
-    'ghrc.io': 'ghrc.io/icgc-argo/argo-data-submission.decrypt-aspera'
+    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.decrypt-aspera'
 ]
-default_container_registry = 'ghrc.io'
+default_container_registry = 'ghcr.io'
 /********************************************************************/
 
 // universal params
@@ -53,33 +53,9 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.expected_output = "./expected/mystery_contents.txt"
+params.expected_output = "./expected/mystery_contents.bam"
 
-process decryptAspera {
-  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
-  errorStrategy 'terminate'
-  cpus params.cpus
-  memory "${params.mem} GB"
-
-  input:  // input, make update as needed
-    path file
-    path c4gh_secret_key
-  output:  // output, make update as needed
-    path "*.md5", emit: md5_file
-    path "*.{bam,cram,fastq.gz,fq.gz,txt}", emit: output_files
-
-  script:
-    // add and initialize variables here as needed
-    """
-    export C4GH_SECRET_KEY=${c4gh_secret_key}
-    export C4GH_PASSPHRASE='' 
-    python3.6 /tools/main.py \\
-      -f ${file} \\
-      > decrypt.log 2>&1
-
-    """
-}
+include { decryptAspera } from '../main'
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -111,13 +87,13 @@ workflow checker {
 
   main:
     decryptAspera(
-    input_file,
-    params.c4gh_secret_key
+    file(input_file),
+    file(params.c4gh_secret_key)
    )
 
     file_smart_diff(
       decryptAspera.out.output_files,
-      expected_output
+      file(expected_output)
     )
 }
 

@@ -44,13 +44,13 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+params.file = ""
+params.c4gh_secret_key = ""
 
 
 process decryptAspera {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
   errorStrategy 'terminate'
   cpus params.cpus
   memory "${params.mem} GB"
@@ -78,7 +78,7 @@ process decryptAspera {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   decryptAspera(
-    params.file,
-    params.c4gh_secret_key
+    file(params.file),
+    file(params.c4gh_secret_key)
   )
 }

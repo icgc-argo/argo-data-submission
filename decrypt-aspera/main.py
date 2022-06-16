@@ -23,6 +23,7 @@
 
 import os
 import sys
+import re
 import argparse
 import subprocess
 
@@ -33,8 +34,8 @@ def main():
 
     This is auto-generated Python code, please update as needed!
     """
-    parser = argparse.ArgumentParser(description='differentiate JSON metadata payload for SONG upload')
-    parser.add_argument('-f', '--file', dest="file", help="auto generated json", required=True)
+    parser = argparse.ArgumentParser(description='wrapper for crypt4gh to de-encrypt files. Requires "C4GH_SECRET_KEY" and "C4GH_PASSPHRASE" as environment variables')
+    parser.add_argument('-f', '--file', dest="file", help="encrypted file", required=True)
 
     results = parser.parse_args()
     

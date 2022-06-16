@@ -1,5 +1,5 @@
 {
-	"file":"input/mystery_file.txt.c4gh",
+	"file":"input/mystery_file.bam.c4gh",
 	"c4gh_secret_key":"input/C4GH_SECRET_KEY",
-	"expected_output":"expected/mystery_contents.txt"
+	"expected_output":"expected/mystery_contents.bam"
 }
