@@ -84,11 +84,13 @@ workflow checker {
     input_file
     c4gh_secret_key
     expected_output
+    c4gh_pass_phrase
 
   main:
     decryptAspera(
     file(input_file),
-    file(params.c4gh_secret_key)
+    file(params.c4gh_secret_key),
+    c4gh_pass_phrase
    )
 
     file_smart_diff(
@@ -102,6 +104,7 @@ workflow {
   checker(
     params.file,
     params.c4gh_secret_key,
-    params.expected_output
+    params.expected_output,
+    params.c4gh_pass_phrase
   )
 }

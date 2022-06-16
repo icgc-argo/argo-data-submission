@@ -46,6 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 // tool specific parmas go here, add / change as needed
 params.file = ""
 params.c4gh_secret_key = ""
+params.c4gh_pass_phrase = ""
 
 
 process decryptAspera {
@@ -58,15 +59,17 @@ process decryptAspera {
   input:  // input, make update as needed
     path file
     path c4gh_secret_key
+    val c4gh_pass_phrase
   output:  // output, make update as needed
     path "*.md5", emit: md5_file
     path "*.{bam,cram,fastq.gz,fq.gz}", emit: output_files
 
   script:
     // add and initialize variables here as needed
+
     """
     export C4GH_SECRET_KEY=${c4gh_secret_key}
-    export C4GH_PASSPHRASE=$C4GH_PASSPHRASE 
+    export C4GH_PASSPHRASE=${c4gh_pass_phrase} 
     python3.6 /tools/main.py \\
       -f ${file} \\
       > decrypt.log 2>&1
@@ -79,6 +82,7 @@ process decryptAspera {
 workflow {
   decryptAspera(
     file(params.file),
-    file(params.c4gh_secret_key)
+    file(params.c4gh_secret_key),
+    params.c4gh_pass_phrase
   )
 }
