@@ -1,24 +1,33 @@
 # Package differentiate-json
 
 
-Please update this with a brief introduction of the package.
-
-
-## Package development
-
-The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
-the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
-versioning, updating, CI testing and releasing.
-
+Compares User provided JSON against Pipeline's generate JSON denoting differences. Uses the `auto_generated.json`'s expected fields to compare in user provided
 
 ## Inputs
 
-Please list all input parameters
+Two JSON files.
 
 
 ## Outputs
 
-Please list all outputs
+#### Successful instance
+Step succeeds and no `ERRORS.log` is generated
+
+#### Example of ERRORS.log
+```
+Differing values found when comparing 'samples/donor/submitterDonorId' : user - EVIL_TEST_DONOR vs auto_gen - TEST_DONOR
+Differing values found when comparing 'read_groups/read_group_id_in_bam' : user - QCMG:22f321c6-ff3f-11e4-8e8b-f8a0800c69f0:130711_7001243_0176_BD2B86ACXX.lane_7.GCACAG.1 vs auto_gen - QCMG:22f321c6-ff3f-11e4-8e8b-f8a0800c69f0:130711_7001243_0176_BD2B86ACXX.lane_7.CTTGTA.1
+'read_groups/read_length_r1' not found in user generated JSON
+'read_groups/read_length_r2' not found in user generated JSON
+```
+
+#### Test run
+`nextflow run checker.nf -params-file test-job-decrypt.json`
+
+#### IRL run
+```
+nextflow run main.nf -params-file tests/test-job-decrypt.json
+```
 
 
 ## Usage
