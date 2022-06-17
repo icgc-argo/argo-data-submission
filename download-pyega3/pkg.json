@@ -1,0 +1,37 @@
+{
+    "name": "download-pyega3",
+    "version": "0.1.0",
+    "description": "FastQC tool",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "seq",
+        "qc metrics"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo/argo-data-submission.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "ghcr.io",
+                "type": "docker",
+                "org": "icgc-argo",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Edmund Su",
+            "email": "edmund.su@oicr.on.ca"
+        }
+    ],
+    "license": "GNU Affero General Public License v3",
+    "bugReport": "https://github.com/icgc-argo/argo-data-submission/issues",
+    "homepage": "https://github.com/icgc-argo/argo-data-submission#readme"
+}
