@@ -1,7 +1,7 @@
 {
     "name": "download-aspera",
     "version": "0.1.0",
-    "description": "FastQC tool",
+    "description": "Wrapper to utilize Aspera for EGA downloads",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
