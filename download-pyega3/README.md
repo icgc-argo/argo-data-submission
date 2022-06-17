@@ -1,27 +1,36 @@
 # Package download-pyega3
 
 
-Please update this with a brief introduction of the package.
-
-
-## Package development
-
-The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
-the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
-versioning, updating, CI testing and releasing.
-
+Wrapper to utilize PYEGA3 downloader to retrieve files from EGA-archive
 
 ## Inputs
 
-Please list all input parameters
-
+See `param-file` list
 
 ## Outputs
 
-Please list all outputs
+EGAF file, Md5 sum and download logs
 
 
 ## Usage
+
+
+#### Contents of Param-file
+```
+{
+    "ega_id" : "EGAF00001770106",  ### EGAF id
+    "pyega3_ega_user" : "ega-test-data@ebi.ac.uk", ### EGA email with approved EGA and DACO access
+    "pyega3_ega_pass" : "egarocks" ### Password used to login on ega-archive.org
+}
+```
+
+#### Test run
+`nextflow run checker.nf -params-file test-job-decrypt.json`
+
+#### IRL run
+```
+nextflow run main.nf -params-file tests/test-job-decrypt.json
+```
 
 ### Run the package directly
 

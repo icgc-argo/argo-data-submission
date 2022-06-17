@@ -1,13 +1,12 @@
 {
     "name": "download-pyega3",
     "version": "0.1.0",
-    "description": "FastQC tool",
+    "description": "EGA download client",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
         "bioinformatics",
-        "seq",
-        "qc metrics"
+        "seq"
     ],
     "repository": {
         "type": "git",

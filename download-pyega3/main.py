@@ -25,6 +25,10 @@ import os
 import sys
 import argparse
 import subprocess
+import random, string
+import json
+import errno
+import shutil
 
 
 def main():
@@ -34,21 +38,61 @@ def main():
     This is auto-generated Python code, please update as needed!
     """
 
-    parser = argparse.ArgumentParser(description='Tool: download-pyega3')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Download files from EGA pyega3 server')
+    parser.add_argument('-f', '--file_name', dest="file_name", help="EGA file name", required=True)
+    parser.add_argument('-o', '--output', dest='output', help="Output file directory", required=True)
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
+    results = parser.parse_args()
 
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
 
-    subprocess.run(f"fastqc -o {args.output_dir} {args.input_file}", shell=True, check=True)
+    cred_file = "."+randomword(60)+".json"
 
+    try:
+        try:
+            # Check if ASCP_EGA_HOST environment variable exists: ega host
+            os.environ['PYEGA3_EGA_USER']
+
+            # Check if ASCP_EGA_USER environment variable exists: ega username
+            os.environ['PYEGA3_EGA_PASS']
+
+        except KeyError:
+            raise KeyError("Global Variable: PYEGA3_EGA_USER and PYEGA3_EGA_PASS must exist in the environment.")
+            
+        # Write credentials to temporary json file
+        with open(cred_file, 'w') as f: 
+            json.dump(
+                {
+                    "username":os.environ['PYEGA3_EGA_USER'],
+                    "password":os.environ['PYEGA3_EGA_PASS']
+                },
+                f)
+            f.close()        
+        
+        # Download process
+        subprocess.call(
+            ["pyega3","-cf",cred_file,"fetch",results.file_name,"--output-dir",results.output,"--delete-temp-files"]
+        )
+        
+        # Check if successful
+        result=subprocess.run("grep 'Download complete' "+os.getcwd()+"/pyega3_output.log"+" || false",shell=True)
+        
+        # check if download successful
+        if result.returncode==0:
+            subprocess.run("touch "+results.output+"/"+results.file_name+"/DOWNLOAD.SUCCESS",shell=True)
+        else:
+            subprocess.run("touch "+results.output+"/"+results.file_name+"/DOWNLOAD.FAILURE",shell=True)
+        
+
+        # Deletion of temporary elements
+        os.remove(cred_file)
+    except Exception as err:
+        print(str(err))
+        if os.path.isfile(cred_file):
+            os.remove(cred_file)
+        exit(1)
+
+def randomword(length):
+    return(''.join(random.choice(string.ascii_lowercase) for i in range(length)))
 
 if __name__ == "__main__":
     main()

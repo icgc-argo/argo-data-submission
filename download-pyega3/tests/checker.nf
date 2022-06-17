@@ -43,10 +43,9 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.expected_output = ""
 
-include { downloadPyega3 } from '../main'
+
+include { downloadPyega3 } from '../main.nf'
 
 
 process file_smart_diff {
@@ -54,7 +53,6 @@ process file_smart_diff {
 
   input:
     path output_file
-    path expected_file
 
   output:
     stdout()
@@ -65,12 +63,9 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
+    cat ${output_file} | egrep -o '^[0-9a-f]{32}' > normalized_output
+    echo 'ce073afcbc07afa343f2d4e4d07efeda'  > normalized_expected
+    
     diff normalized_output normalized_expected \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
@@ -79,24 +74,26 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
-    expected_output
-
+    ega_id
+    pyega3_ega_user
+    pyega3_ega_pass
   main:
     downloadPyega3(
-      input_file
+      ega_id,
+      pyega3_ega_user,
+      pyega3_ega_pass
     )
 
     file_smart_diff(
-      downloadPyega3.out.output_file,
-      expected_output
+      downloadPyega3.out.md5_file,
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.ega_id,
+    params.pyega3_ega_user,
+    params.pyega3_ega_pass
   )
 }

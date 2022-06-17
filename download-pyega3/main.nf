@@ -44,33 +44,38 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+params.ega_id=''
+params.pyega3_ega_user=''
+params.pyega3_ega_pass=''
 
 
 process downloadPyega3 {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    val ega_id
+    val pyega3_ega_user
+    val pyega3_ega_pass
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "${ega_id}/*.md5", emit: md5_file
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz}", emit: output_files
 
   script:
-    // add and initialize variables here as needed
 
     """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    export PYEGA3_EGA_USER=${pyega3_ega_user}
+    export PYEGA3_EGA_PASS=${pyega3_ega_pass}
+    mkdir -p ${ega_id}
+    python3.6 /tools/main.py \\
+    	-f ${ega_id} \\
+    	-o \$PWD \\
+    	> download.log 2>&1
+    
     """
 }
 
@@ -79,6 +84,9 @@ process downloadPyega3 {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   downloadPyega3(
-    file(params.input_file)
+    params.ega_id,
+    params.pyega3_ega_user,
+    params.pyega3_ega_pass
   )
 }
+
