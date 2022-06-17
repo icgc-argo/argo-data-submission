@@ -44,33 +44,83 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
 
+params.program_id=''
+params.submitter_donor_id=''
+params.gender=''
+params.submitter_specimen_id=''
+params.specimen_tissue_source=''
+params.tumour_normal_designation=''
+params.specimen_type=''
+params.submitter_sample_id=''
+params.sample_type=''
+params.matched_normal_submitter_sample_id=''
+params.EGAX=''
+params.EGAN=''
+params.EGAR=''
+params.EGAF=''
+params.experimental_strategy=''
+params.EGAD=''
+params.EGAS=''
+params.output_files=''
+params.md5_files=''
 
 process generateJson {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
-
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
+  errorStrategy 'terminate'
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    val program_id
+    val submitter_donor_id
+    val gender
+    val submitter_specimen_id
+    val specimen_tissue_source
+    val tumour_normal_designation
+    val specimen_type
+    val submitter_sample_id
+    val sample_type
+    val matched_normal_submitter_sample_id
+    val EGAX
+    val EGAN
+    val EGAR
+    val EGAF
+    val experimental_strategy
+    val EGAD 
+    val EGAS
+    path output_files
+    path md5_files
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "*.json", emit: json_file
 
   script:
     // add and initialize variables here as needed
 
     """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    python3 /tools/main.py \\
+      --program_id '${program_id}' \\
+      --submitter_donor_id '${submitter_donor_id}' \\
+      --gender '${gender}' \\
+      --submitter_specimen_id '${submitter_specimen_id}' \\
+      --specimen_tissue_source '${specimen_tissue_source}' \\
+      --tumour_normal_designation '${tumour_normal_designation}' \\
+      --specimen_type '${specimen_type}' \\
+      --submitter_sample_id '${submitter_sample_id}' \\
+      --sample_type '${sample_type}' \\
+      --matched_normal_submitter_sample_id '${matched_normal_submitter_sample_id}' \\
+      --EGAX '${EGAX}' \\
+      --EGAN '${EGAN}' \\
+      --EGAR '${EGAR}' \\
+      --EGAF '${EGAF}' \\
+      --experimental_strategy '${experimental_strategy}' \\
+      --EGAD '${EGAD}' \\
+      --EGAS '${EGAS}' \\
+      --output_files '${output_files}' \\
+      --md5 '${md5_files}' \\
+    	> generate_json.log 2>&1
     """
 }
 
@@ -79,6 +129,24 @@ process generateJson {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   generateJson(
-    file(params.input_file)
+    params.program_id,
+    params.submitter_donor_id,
+    params.gender,
+    params.submitter_specimen_id,
+    params.specimen_tissue_source,
+    params.tumour_normal_designation,
+    params.specimen_type,
+    params.submitter_sample_id,
+    params.sample_type,
+    params.matched_normal_submitter_sample_id,
+    params.EGAX,
+    params.EGAN,
+    params.EGAR,
+    params.EGAF,
+    params.experimental_strategy,
+    params.EGAD,
+    params.EGAS,
+    Channel.fromPath(params.output_files).collect(),
+    Channel.fromPath(params.md5_files).collect()
   )
 }

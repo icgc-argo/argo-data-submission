@@ -48,6 +48,25 @@ params.expected_output = ""
 
 include { generateJson } from '../main'
 
+params.program_id=''
+params.submitter_donor_id=''
+params.gender=''
+params.submitter_specimen_id=''
+params.specimen_tissue_source=''
+params.tumour_normal_designation=''
+params.specimen_type=''
+params.submitter_sample_id=''
+params.sample_type=''
+params.matched_normal_submitter_sample_id=''
+params.EGAX=''
+params.EGAN=''
+params.EGAR=''
+params.EGAF=''
+params.experimental_strategy=''
+params.EGAD=''
+params.EGAS=''
+params.output_files=''
+params.md5_files=''
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -64,14 +83,7 @@ process file_smart_diff {
     # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
+    diff ${output_file} ${expected_file} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -79,24 +91,78 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    program_id
+    submitter_donor_id
+    gender
+    submitter_specimen_id
+    specimen_tissue_source
+    tumour_normal_designation
+    specimen_type
+    submitter_sample_id
+    sample_type
+    matched_normal_submitter_sample_id
+    EGAX
+    EGAN
+    EGAR
+    EGAF
+    experimental_strategy
+    EGAD
+    EGAS
+    output_files
+    md5_files
     expected_output
 
   main:
     generateJson(
-      input_file
+      program_id,
+      submitter_donor_id,
+      gender,
+      submitter_specimen_id,
+      specimen_tissue_source,
+      tumour_normal_designation,
+      specimen_type,
+      submitter_sample_id,
+      sample_type,
+      matched_normal_submitter_sample_id,
+      EGAX,
+      EGAN,
+      EGAR,
+      EGAF,
+      experimental_strategy,
+      EGAD,
+      EGAS,
+      Channel.fromPath(output_files).collect(),
+      Channel.fromPath(md5_files).collect()
     )
 
     file_smart_diff(
-      generateJson.out.output_file,
-      expected_output
+      generateJson.out.json_file,
+      file(expected_output)
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.program_id,
+    params.submitter_donor_id,
+    params.gender,
+    params.submitter_specimen_id,
+    params.specimen_tissue_source,
+    params.tumour_normal_designation,
+    params.specimen_type,
+    params.submitter_sample_id,
+    params.sample_type,
+    params.matched_normal_submitter_sample_id,
+    params.EGAX,
+    params.EGAN,
+    params.EGAR,
+    params.EGAF,
+    params.experimental_strategy,
+    params.EGAD,
+    params.EGAS,
+    params.output_files,
+    params.md5_files,
+    params.expected_output
   )
 }
