@@ -1,27 +1,38 @@
 # Package download-aspera
 
-
-Please update this with a brief introduction of the package.
-
-
-## Package development
-
-The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
-the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
-versioning, updating, CI testing and releasing.
+Wrapper for Aspera to download files
 
 
 ## Inputs
 
-Please list all input parameters
+See contents of `param-file`
 
 
 ## Outputs
 
-Please list all outputs
+Supplied file to be downloaded
 
 
 ## Usage
+
+#### Contents of Param-file
+```
+{
+    "input_file" : "/aspera-test-dir-large/100MB", ### File to be download 
+    "EGAF" : "EGAF000001", ### Associated EGAF id
+    "ASCP_SCP_HOST" : "demo.asperasoft.com", ### Host server address
+    "ASCP_SCP_USER" : "aspera", ### Host provided username
+    "ASPERA_SCP_PASS" : "demoaspera" ### Host provided password
+}
+```
+
+#### Test run
+`nextflow run checker.nf -params-file test-job-aspera.json`
+
+#### IRL run
+```
+nextflow run ../main.nf -params-file test-job-aspera.json
+```
 
 ### Run the package directly
 

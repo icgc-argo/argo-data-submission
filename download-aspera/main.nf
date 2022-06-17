@@ -44,41 +44,51 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
-
+params.input_file=''
+params.EGAF=''
+params.ASCP_SCP_HOST=''
+params.ASCP_SCP_USER=''
+params.ASPERA_SCP_PASS=''
 
 process downloadAspera {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
-
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
+  errorStrategy 'terminate'
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
-
+    val input_file
+    val EGAF
+    val ASCP_SCP_HOST
+    val ASCP_SCP_USER
+    val ASPERA_SCP_PASS
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "${EGAF}/${regexed_file_name}", emit: output_file
 
   script:
     // add and initialize variables here as needed
-
+    regexed_file_name=input_file.replaceAll(/^.*\//,'').replaceAll(/\.c4gh/,'')
     """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    mkdir ${EGAF}
+    export ASCP_SCP_HOST=${ASCP_SCP_HOST}
+    export ASCP_SCP_USER=${ASCP_SCP_USER}
+    export ASPERA_SCP_PASS=${ASPERA_SCP_PASS}
+    python3.6 /tools/main.py \\
+      -f ${input_file} \\
+      -o ${EGAF} \\
+      > download.log 2>&1
     """
 }
-
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   downloadAspera(
-    file(params.input_file)
+    params.input_file,
+    params.EGAF,
+    params.ASCP_SCP_HOST,
+    params.ASCP_SCP_USER,
+    params.ASPERA_SCP_PASS,
   )
 }

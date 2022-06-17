@@ -25,6 +25,10 @@ import os
 import sys
 import argparse
 import subprocess
+import errno
+import shutil
+import random
+import string
 
 
 def main():
@@ -34,20 +38,65 @@ def main():
     This is auto-generated Python code, please update as needed!
     """
 
-    parser = argparse.ArgumentParser(description='Tool: download-aspera')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Download files from EGA aspera server')
+    parser.add_argument('-f', '--file_name', dest="file_name", help="EGA file name", required=True)
+    parser.add_argument('-o', '--output', dest='output', help="Output file name", required=True)
+    results = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
+    file_list = randomword(60)+".txt"
 
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
+    try:
+        try:
+            # Check if ASCP_EGA_HOST environment variable exists: ega host
+            os.environ['ASCP_SCP_HOST']
 
-    subprocess.run(f"fastqc -o {args.output_dir} {args.input_file}", shell=True, check=True)
+            # Check if ASCP_EGA_USER environment variable exists: ega username
+            os.environ['ASCP_SCP_USER']
+
+            # Check if ASPERA_SCP_PASS environment variable exists: ascpera password
+            os.environ['ASPERA_SCP_PASS']
+        except KeyError:
+            raise KeyError("Global Variable: ASCP_SCP_HOST, ASCP_SCP_USER and ASPERA_SCP_PASS must exist in the environment.")
+
+        # Raise an error if the output file exists
+        if os.path.isfile(results.output+"/"+results.file_name):
+            raise ValueError("Output file already exists")
+
+        # Write the file to be downloaded to the temporary file
+        with open(file_list, 'w') as f:
+            f.write(results.file_name)
+            f.write('\n')
+
+        # Download process
+        result=subprocess.run(['/home/ubuntu/.aspera/connect/bin/ascp','-k','1','-QTl','100m','--file-list='+file_list,'--partial-file-suffix=PART','--ignore-host-key','--mode=recv','--host='+os.environ['ASCP_SCP_HOST'],'--user='+os.environ['ASCP_SCP_USER'],results.output])
+        
+        if result.returncode==0:
+            subprocess.run("touch "+results.output+"/DOWNLOAD.SUCCESS",shell=True)
+        else:
+            subprocess.run("touch "+results.output+"/DOWNLOAD.FAILURE",shell=True)
+        
+        # Deletion of temporary elements
+        os.remove(file_list)
+    except Exception as err:
+        print(str(err))
+        if os.path.isfile(file_list):
+            os.remove(file_list)
+        exit(1)
+
+
+
+def randomword(length):
+   return(''.join(random.choice(string.ascii_lowercase) for i in range(length)))
+
+def mkdir_p(path,file):
+    try:
+        os.makedirs(path,mode=0o755, exist_ok=True )
+        os.makedirs(path+"/"+file,mode=0o755, exist_ok=True )
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
 
 
 if __name__ == "__main__":

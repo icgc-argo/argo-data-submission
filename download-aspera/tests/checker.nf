@@ -43,10 +43,9 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.expected_output = ""
 
-include { downloadAspera } from '../main'
+
+include { downloadAspera } from '../main.nf'
 
 
 process file_smart_diff {
@@ -54,7 +53,6 @@ process file_smart_diff {
 
   input:
     path output_file
-    path expected_file
 
   output:
     stdout()
@@ -65,12 +63,9 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
+    md5sum ${output_file} | egrep -o '^[0-9a-f]{32}' > normalized_output
+    echo "29df96fc47f09023bf00a044585fc697" > normalized_expected
+    
     diff normalized_output normalized_expected \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
@@ -80,23 +75,32 @@ process file_smart_diff {
 workflow checker {
   take:
     input_file
-    expected_output
+    EGAF
+    ASCP_SCP_HOST
+    ASCP_SCP_USER
+    ASPERA_SCP_PASS
 
   main:
-    downloadAspera(
-      input_file
-    )
+  downloadAspera(
+    params.input_file,
+    params.EGAF,
+    params.ASCP_SCP_HOST,
+    params.ASCP_SCP_USER,
+    params.ASPERA_SCP_PASS,
+  )
 
     file_smart_diff(
       downloadAspera.out.output_file,
-      expected_output
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.input_file,
+    params.EGAF,
+    params.ASCP_SCP_HOST,
+    params.ASCP_SCP_USER,
+    params.ASPERA_SCP_PASS,
   )
 }
