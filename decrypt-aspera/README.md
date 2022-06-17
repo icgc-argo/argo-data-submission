@@ -26,11 +26,11 @@ Decrypted file w/ md5sum (same name with ".md5" suffix)
 ```
 
 #### Test run
-`nextflow run checker.nf -params-file test-job-generate.json`
+`nextflow run checker.nf -params-file test-job-decrypt.json`
 
 #### IRL run
 ```
-nextflow run main.nf -params-file tests/test-job-generate.json
+nextflow run main.nf -params-file tests/test-job-decrypt.json
 ```
 ### Run the package directly
 
