@@ -16,12 +16,20 @@ Decrypted file w/ md5sum (same name with ".md5" suffix)
 
 ## Usage
 
-### Test run
-`nextflow run tests/checker.nf -params-file tests/test-job-generate.json`
-
-### IRL run
+#### Contents of Param-file
 ```
-export C4GH_PASSPHRASE=''
+{
+	"file":"input/mystery_file.bam.c4gh", ### File to decrypt
+	"c4gh_secret_key":"input/C4GH_SECRET_KEY.txt", ### Public secret key
+	"c4gh_pass_phrase":"" ### Public secret key passphrase
+}
+```
+
+#### Test run
+`nextflow run checker.nf -params-file test-job-generate.json`
+
+#### IRL run
+```
 nextflow run main.nf -params-file tests/test-job-generate.json
 ```
 ### Run the package directly
