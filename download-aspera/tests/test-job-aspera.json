@@ -1,0 +1,7 @@
+{
+    "target_file" : "/aspera-test-dir-large/100MB", 
+    "EGAF" : "EGAF000001",
+    "ASCP_SCP_HOST" : "demo.asperasoft.com",
+    "ASCP_SCP_USER" : "aspera",
+    "ASPERA_SCP_PASS" : "demoaspera"
+}
