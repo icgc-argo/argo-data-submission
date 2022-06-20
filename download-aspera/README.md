@@ -18,7 +18,7 @@ Supplied file to be downloaded
 #### Contents of Param-file
 ```
 {
-    "input_file" : "/aspera-test-dir-large/100MB", ### File to be download 
+    "target_file" : "/aspera-test-dir-large/100MB", ### File to be download 
     "EGAF" : "EGAF000001", ### Associated EGAF id
     "ASCP_SCP_HOST" : "demo.asperasoft.com", ### Host server address
     "ASCP_SCP_USER" : "aspera", ### Host provided username
