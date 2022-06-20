@@ -88,16 +88,5 @@ def main():
 def randomword(length):
    return(''.join(random.choice(string.ascii_lowercase) for i in range(length)))
 
-def mkdir_p(path,file):
-    try:
-        os.makedirs(path,mode=0o755, exist_ok=True )
-        os.makedirs(path+"/"+file,mode=0o755, exist_ok=True )
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
-
-
 if __name__ == "__main__":
     main()

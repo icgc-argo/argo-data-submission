@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-LABEL org.opencontainers.image.source https://github.com/edsu7/argo-data-submission
+LABEL org.opencontainers.image.source https://github.com/icgc-argo/argo-data-submission
 LABEL org.opencontainers.image.authors Edmund Su (edmund.su@oicr.on.ca)
 LABEL org.opencontainers.image.title ICGC ARGO Data download image
 

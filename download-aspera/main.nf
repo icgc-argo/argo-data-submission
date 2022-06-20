@@ -44,7 +44,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file=''
+params.target_file=''
 params.EGAF=''
 params.ASCP_SCP_HOST=''
 params.ASCP_SCP_USER=''
@@ -58,7 +58,7 @@ process downloadAspera {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    val input_file
+    val target_file
     val EGAF
     val ASCP_SCP_HOST
     val ASCP_SCP_USER
@@ -68,14 +68,14 @@ process downloadAspera {
 
   script:
     // add and initialize variables here as needed
-    regexed_file_name=input_file.replaceAll(/^.*\//,'').replaceAll(/\.c4gh/,'')
+    regexed_file_name=target_file.replaceAll(/^.*\//,'')
     """
     mkdir ${EGAF}
     export ASCP_SCP_HOST=${ASCP_SCP_HOST}
     export ASCP_SCP_USER=${ASCP_SCP_USER}
     export ASPERA_SCP_PASS=${ASPERA_SCP_PASS}
     python3.6 /tools/main.py \\
-      -f ${input_file} \\
+      -f ${target_file} \\
       -o ${EGAF} \\
       > download.log 2>&1
     """
@@ -85,7 +85,7 @@ process downloadAspera {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   downloadAspera(
-    params.input_file,
+    params.target_file,
     params.EGAF,
     params.ASCP_SCP_HOST,
     params.ASCP_SCP_USER,
