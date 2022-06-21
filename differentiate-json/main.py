@@ -48,13 +48,14 @@ def main():
             
     warnings=[]
     errors=[]
+    dummy_nested_key=[]
     exceptions=[
             "sample_barcode",
             "insert_size",
-            "read_group_id_in_bam",
+            "submitter_read_group_id",
             "legacyAnalysisId"
             ]
-    check_values(up_dict,ag_dict,warnings,errors,[],exceptions)
+    check_values(up_dict,ag_dict,warnings,errors,exceptions,[])
 
     if len(warnings)>0:
         with open('WARNINGS.log', 'w') as f:
@@ -69,12 +70,13 @@ def main():
         
 
                 
-def check_values(json_a,json_b,warnings:list,errors:list,nested_key=None,exceptions=[]):
+def check_values(json_a,json_b,warnings:list,errors:list,exceptions:list,nested_key:None):
     for key in json_b:
         nested_key.append(key)
         
         ###Check if key is an exception
         if key in exceptions:
+            nested_key.pop()
             continue
 
         ###Check if key is missing from auto
@@ -86,7 +88,7 @@ def check_values(json_a,json_b,warnings:list,errors:list,nested_key=None,excepti
         
         ###If key object is dictionary result in recursion
         elif type(json_a[key])==dict:
-            check_values(json_a[key],json_b[key],warnings,errors,nested_key)
+            check_values(json_a[key],json_b[key],warnings,errors,exceptions,nested_key)
         
         ###If key object is list :
         elif type(json_a[key])==list:
@@ -103,7 +105,7 @@ def check_values(json_a,json_b,warnings:list,errors:list,nested_key=None,excepti
 
                 ###If key object ele is dictionary result in recursion
                 if type(entry[1])==dict:
-                    check_values(json_a[key][entry[0]],json_b[key][entry[0]],warnings,errors,nested_key)
+                    check_values(json_a[key][entry[0]],json_b[key][entry[0]],warnings,errors,exceptions,nested_key)
                 else:
                     if json_a[key][entry[0]]!=json_b[key][entry[0]] and json_b[key][entry[0]] !=None:
                         msg="Differing values found when comparing'"+"/".join(nested_key)+"' : user - "+str(json_a[key][entry[0]])+" vs auto_gen - "+str(json_b[key][entry[0]])
