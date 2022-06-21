@@ -52,7 +52,7 @@ params.pyega3_ega_pass=''
 process downloadPyega3 {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
-
+  errorStrategy 'terminate'
   cpus params.cpus
   memory "${params.mem} GB"
 
@@ -63,8 +63,7 @@ process downloadPyega3 {
 
   output:  // output, make update as needed
     path "${ega_id}/*.md5", emit: md5_file
-    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz}", emit: output_files
-
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,bcf}"
   script:
 
     """

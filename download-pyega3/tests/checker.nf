@@ -64,7 +64,7 @@ process file_smart_diff {
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
     cat ${output_file} | egrep -o '^[0-9a-f]{32}' > normalized_output
-    echo 'ce073afcbc07afa343f2d4e4d07efeda'  > normalized_expected
+    echo 'aaca702e347ae6caa734d44527a49212'  > normalized_expected
     
     diff normalized_output normalized_expected \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
