@@ -10,11 +10,9 @@ RUN apt-get update && \
 
 RUN mkdir /tools
 
-RUN cd /tmp &&\
-	curl -sSL -o ega-download-client-4.0.3.tar.gz --retry 10 https://github.com/EGA-archive/ega-download-client/archive/refs/tags/v4.0.3.tar.gz  &&\
-	tar xf ega-download-client-4.0.3.tar.gz &&\
-	cd ega-download-client-4.0.3 && \
-	pip3 install .
+RUN pip3 install --upgrade pip
+
+RUN pip3 install pyega3
     
 ENV PATH="/tools:${PATH}"
 

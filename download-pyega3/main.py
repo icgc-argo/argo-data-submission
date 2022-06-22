@@ -70,7 +70,7 @@ def main():
         
         # Download process
         subprocess.call(
-            ["pyega3","-cf",cred_file,"fetch",results.file_name,"--output-dir",results.output,"--delete-temp-files"]
+            ["pyega3","-cf",cred_file,"fetch",results.file_name,"--delete-temp-files"]
         )
         
         # Check if successful
