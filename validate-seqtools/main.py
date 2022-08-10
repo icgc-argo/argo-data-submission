@@ -35,19 +35,18 @@ def main():
     """
 
     parser = argparse.ArgumentParser(description='Tool: validate-seqtools')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
+    parser.add_argument('-j', '--json-file', dest='json_file', type=str,
+                        help='JSON file containing molecular data to be validated', required=True)
+    parser.add_argument('-k', '--skip_md5sum_check', dest='skip_md5sum', action='store_true',
+                        help='JSON file containing molecular data to be validated')
     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
-
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
-
-    subprocess.run(f"cp {args.input_file} {args.output_dir}/", shell=True, check=True)
+    # Check if successful
+    if args.skip_md5sum :
+        cmd="seq-tools validate "+args.json_file+" --skip_md5sum_check"
+    else:
+        cmd="seq-tools validate "+args.json_file
+    result=subprocess.run(cmd,shell=True)
 
 
 if __name__ == "__main__":

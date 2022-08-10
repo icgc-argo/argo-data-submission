@@ -1,0 +1,5 @@
+{
+    "json_file": "input/HCC1150N.WGS.meta.json",
+    "files": ["input/C0HVY.2_r1.fq.gz","input/C0HVY.2_r2.fq.gz","input/D0RE2.1_r1.fq.gz","input/D0RE2.1_r2.fq.gz","input/D0RH0.2_r1.fq.gz","input/D0RH0.2_r2.fq.gz"],
+    "expected_output": "expected/HCC1150N.WGS.meta.validation_report.INVALID.jsonl"
+}

@@ -44,33 +44,33 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+params.json_file = ""
+params.skip_md5sum_check = 'NO_FILE'
+params.files = ""
 
 
 process validateSeqtools {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
-
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
+ 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    path json_file
+    path files
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "validation_report.*.jsonl", emit: validation_log
 
   script:
     // add and initialize variables here as needed
-
+    args_skip_md5sum_check = !params.skip_md5sum_check.startsWith("NO_FILE")  ? "--skip_md5sum_check " : ""
     """
-    mkdir -p output_dir
-
-    main.py \
-      -i ${input_file} \
-      -o output_dir
-
+    python3 /tools/main.py \
+      -j ${json_file} \
+      ${args_skip_md5sum_check} \
+      > seq-tools.log 2>&1
     """
 }
 
@@ -79,6 +79,7 @@ process validateSeqtools {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   validateSeqtools(
-    file(params.input_file)
+    file(params.json_file),
+    Channel.fromPath(params.files).collect()
   )
 }

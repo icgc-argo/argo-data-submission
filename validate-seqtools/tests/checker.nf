@@ -42,9 +42,6 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-// tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.expected_output = ""
 
 include { validateSeqtools } from '../main'
 
@@ -61,34 +58,28 @@ process file_smart_diff {
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    cat ${output_file} | jq . | egrep -v 'metadata_file|data_dir|started_at|ended_at' > fileA
+    cat ${expected_file} | jq . | egrep -v 'metadata_file|data_dir|started_at|ended_at' > fileB
+    diff fileA fileB\
+    && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
 
 
 workflow checker {
   take:
-    input_file
+    input_json
+    input_files
     expected_output
 
   main:
     validateSeqtools(
-      input_file
+      input_json,
+      input_files
     )
 
     file_smart_diff(
-      validateSeqtools.out.output_file,
+      validateSeqtools.out.validation_log,
       expected_output
     )
 }
@@ -96,7 +87,8 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    file(params.json_file),
+    Channel.fromPath(params.files).collect(),
     file(params.expected_output)
   )
 }
