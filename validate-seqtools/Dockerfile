@@ -37,10 +37,13 @@ RUN cd /tmp &&\
 
 # Install seq-tools
 
-RUN git clone https://github.com/icgc-argo/seq-tools.git &&\
-    cd seq-tools &&\
-    pip3 install -r requirements.txt  &&\
-    pip3 install .
+RUN pip install git+https://github.com/icgc-argo/seq-tools.git@1.2.1
+
+#RUN git clone https://github.com/icgc-argo/seq-tools.git@1.1.0 &&\
+#    git clone https://github.com/icgc-argo/seq-tools.git@1.1.0
+#    cd seq-tools &&\
+#    pip3 install -r requirements.txt  &&\
+#    pip3 install .
     
 ENV PATH="/tools:${PATH}"
 

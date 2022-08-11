@@ -1,27 +1,39 @@
 # Package validate-seqtools
 
 
-Please update this with a brief introduction of the package.
-
-
-## Package development
-
-The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
-the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
-versioning, updating, CI testing and releasing.
+Wrapper for Seq-tools used to validate molecular data for ICGC-ARGO submission.
+See https://github.com/icgc-argo/seq-tools for more info.
 
 
 ## Inputs
 
-Please list all input parameters
-
+See contents of `param-file`
 
 ## Outputs
-
-Please list all outputs
-
+One of the following validation logs:
+```
+validation_report.PASS-with-WARNING.jsonl
+validation_report.PASS-with-WARNING-and-SKIPPED-check.jsonl
+validation_report.PASS.jsonl
+validation_report.INVALID.jsonl
+```
 
 ## Usage
+
+#### Contents of Param-file
+```
+{
+    "json_file": "input/anon_chr1_complete.json", ### Metadata JSON. Output from icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment
+    "files": ["input/anon_chr1_complete.bam"], ### List of files to be submitted. Lane level
+}
+```
+
+
+#### Test run
+`nextflow run checker.nf -params-file test-job-bam.json`
+
+#### IRL run
+`nextflow run ../main.nf -params-file test-job-bam.json`
 
 ### Run the package directly
 

@@ -45,7 +45,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.json_file = ""
-params.skip_md5sum_check = 'NO_FILE'
+params.skip_md5sum_check = false
 params.files = ""
 
 
@@ -65,7 +65,7 @@ process validateSeqtools {
 
   script:
     // add and initialize variables here as needed
-    args_skip_md5sum_check = !params.skip_md5sum_check.startsWith("NO_FILE")  ? "--skip_md5sum_check " : ""
+    args_skip_md5sum_check = params.skip_md5sum_check  ? "--skip_md5sum_check " : ""
     """
     python3 /tools/main.py \
       -j ${json_file} \
