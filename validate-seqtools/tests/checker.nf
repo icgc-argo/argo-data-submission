@@ -58,8 +58,8 @@ process file_smart_diff {
 
   script:
     """
-    cat ${output_file} | jq . | egrep -v 'metadata_file|data_dir|started_at|ended_at' > fileA
-    cat ${expected_file} | jq . | egrep -v 'metadata_file|data_dir|started_at|ended_at' > fileB
+    cat ${output_file} | jq . | egrep -v 'metadata_file|data_dir|started_at|ended_at|version' > fileA
+    cat ${expected_file} | jq . | egrep -v 'metadata_file|data_dir|started_at|ended_at|version' > fileB
     diff fileA fileB\
     && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
