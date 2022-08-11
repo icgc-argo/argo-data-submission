@@ -35,7 +35,20 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 params.input_file = ""
 params.cleanup = true
 
-include { demoCopyFile } from "./local_modules/demo-copy-file"
+params.download_mode=""
+params.files_to_download=""
+params.ids_to_download=""
+
+params.ascp_scp_host=""
+params.ascp_scp_user=""
+params.aspera_scp_pass=""
+
+params.c4gh_secret_key="NO_FILE"
+params.c4gh_pass_phrase=""
+
+params.pyega3_ega_user=""
+params.pyega3_ega_pass=""
+
 include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
@@ -44,16 +57,51 @@ include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-su
 // please update workflow code as needed
 workflow EgaDownloadWf {
   take:  // update as needed
-    input_file
-
-
+    download_mode
+    file_to_download
+    id_to_download
+    ascp_scp_host
+    ascp_scp_user
+    aspera_scp_pass
+    pyega3_ega_user
+    pyega3_ega_pass
+    c4gh_secret_key
+    c4gh_pass_phrase
   main:  // update as needed
-    demoCopyFile(input_file)
+
+    if ( download_mode=='aspera' ){
+
+      downloadAspera(
+        file_to_download,
+        id_to_download,
+        ascp_scp_host,
+        ascp_scp_user,
+        aspera_scp_pass)
+
+      decryptAspera(
+        downloadAspera.out.output_file,
+        file(c4gh_secret_key),
+        c4gh_pass_phrase
+        )
+
+      sequence_files=decryptAspera.out.output_files.collect()
+    } else if (download_mode=='pyega3'){
+
+      downloadPyega3(
+        id_to_download,
+        pyega3_ega_user,
+        pyega3_ega_pass
+        )
+      
+      sequence_files=downloadPyega3.out.output_files.collect()
+    } else {
+      println "Invalid download mode. Please specify 'pyega3' or 'aspera'"
+      exit 1
+    }
 
 
   emit:  // update as needed
-    output_file = demoCopyFile.out.output_file
-
+    sequence_files
 }
 
 
@@ -61,6 +109,15 @@ workflow EgaDownloadWf {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   EgaDownloadWf(
-    file(params.input_file)
+    params.download_mode,
+    params.files_to_download,
+    params.ids_to_download,
+    params.ascp_scp_host,
+    params.ascp_scp_user,
+    params.aspera_scp_pass,
+    params.pyega3_ega_user,
+    params.pyega3_ega_pass,
+    params.c4gh_secret_key
+    params.c4gh_pass_phrase
   )
 }
