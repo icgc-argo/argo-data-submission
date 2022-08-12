@@ -1,6 +1,6 @@
 {
     "name": "download-pyega3",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "EGA download client",
     "main": "main.nf",
     "deprecated": false,

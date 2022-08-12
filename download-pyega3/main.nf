@@ -24,7 +24,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0'  // package version
+version = '0.1.1'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-pyega3'
@@ -63,7 +63,7 @@ process downloadPyega3 {
 
   output:  // output, make update as needed
     path "${ega_id}/*.md5", emit: md5_file
-    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,bcf}"
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,bcf}", emit : output_files
   script:
 
     """
