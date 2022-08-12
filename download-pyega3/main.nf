@@ -63,7 +63,7 @@ process downloadPyega3 {
 
   output:  // output, make update as needed
     path "${ega_id}/*.md5", emit: md5_file
-    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,bcf}"
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,bcf}", emit : output_files
   script:
 
     """
