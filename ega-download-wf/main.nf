@@ -36,8 +36,8 @@ params.input_file = ""
 params.cleanup = true
 
 params.download_mode=""
-params.files_to_download=""
-params.ids_to_download=""
+params.files_to_download=[]
+params.ids_to_download=[]
 
 params.ascp_scp_host=""
 params.ascp_scp_user=""
@@ -53,13 +53,15 @@ include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-s
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 
+Channel.fromList(params.files_to_download).set{file_ch}
+Channel.fromList(params.ids_to_download).set{id_ch}
 
 // please update workflow code as needed
 workflow EgaDownloadWf {
   take:  // update as needed
     download_mode
-    file_to_download
-    id_to_download
+    files_to_download
+    ids_to_download
     ascp_scp_host
     ascp_scp_user
     aspera_scp_pass
@@ -69,11 +71,23 @@ workflow EgaDownloadWf {
     c4gh_pass_phrase
   main:  // update as needed
 
-    if ( download_mode=='aspera' ){
 
+    if ( download_mode=='aspera' ){
+      if (id_ch.count()!=file_ch.count()){
+      println "# of ega_file_ids != # of file paths. Please Correct."
+      exit 1
+      }
+      else if (files_to_download.size()==0){
+      println "# of ega_file_ids != # of file paths. Please Correct."
+      exit 1
+      }
+      else if (ids_to_download.size()==0){
+      println "# of ega_file_ids != # of file paths. Please Correct."
+      exit 1
+      } else {
       downloadAspera(
-        file_to_download,
-        id_to_download,
+        files_to_download,
+        ids_to_download,
         ascp_scp_host,
         ascp_scp_user,
         aspera_scp_pass)
@@ -85,10 +99,16 @@ workflow EgaDownloadWf {
         )
 
       sequence_files=decryptAspera.out.output_files.collect()
+      }
     } else if (download_mode=='pyega3'){
 
+      if (ids_to_download.size()==0){
+      println "# of ega_file_ids must be greater than 0. Please Correct."
+      exit 1
+      }
+
       downloadPyega3(
-        id_to_download,
+        id_ch,
         pyega3_ega_user,
         pyega3_ega_pass
         )
@@ -102,6 +122,7 @@ workflow EgaDownloadWf {
 
   emit:  // update as needed
     sequence_files
+
 }
 
 
@@ -117,7 +138,7 @@ workflow {
     params.aspera_scp_pass,
     params.pyega3_ega_user,
     params.pyega3_ega_pass,
-    params.c4gh_secret_key
+    params.c4gh_secret_key,
     params.c4gh_pass_phrase
   )
 }
