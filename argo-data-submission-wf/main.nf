@@ -32,30 +32,144 @@ params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
 params.cleanup = true
 
-include { demoCopyFile } from "./local_modules/demo-copy-file"
-include { SongScoreUpload } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params([*:params, 'cleanup': false])
+// ArgoDataSubmissionWf
+params.download_mode="local"
+params.study_id="TEST-PR"
+
+// payloadGenSeqExperiment
+params.experiment_info_tsv="NO_FILE1"
+params.read_group_info_tsv="NO_FILE2"
+params.file_info_tsv="NO_FILE3"
+params.extra_info_tsv="NO_FILE4"
+
+// downloadPyega3
+params.pyega3_ega_user=""
+params.pyega3_ega_pass=""
+
+// downloadAspera
+params.ascp_scp_host=""
+params.ascp_scp_user=""
+params.aspera_scp_pass=""
+
+// DecryptAspera
+params.c4gh_pass_phrase=""
+params.c4gh_secret_key="NO_FILE5"
+
+// SongScoreUpload
+params.max_retries = 5  // set to 0 will disable retry
+params.first_retry_wait_time = 1  // in seconds
+// SONG
+params.api_token=''
+params.song_cpus = 1
+params.song_mem = 1  // GB
+params.song_url = "https://song.rdpc-qa.cancercollaboratory.org"
+params.song_api_token = ""
+params.song_container_version = "4.2.1"
+// SCORE
+params.score_cpus = 1
+params.score_mem = 1  // GB
+params.score_transport_mem = 1  // GB
+params.score_url = "https://score.rdpc-qa.cancercollaboratory.org"
+params.score_api_token = ""
+params.score_container_version = "5.0.0"
+
+SongScoreUpload_params = [
+    'max_retries': params.max_retries,
+    'first_retry_wait_time': params.first_retry_wait_time,
+    'cpus': params.cpus,
+    'mem': params.mem,
+    'song_url': params.song_url,
+    'score_url': params.score_url,
+    'api_token': params.api_token,
+    *:(params.SongScoreUpload ?: [:])
+]
+
+include { SongScoreUpload } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(SongScoreUpload_params)
 include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.1/main.nf' params([*:params, 'cleanup': false])
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { validateSeqtools } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
-
+include { egaDownloadWf } from "../ega-download-wf/main.nf" params([*:params, 'cleanup': false])
+incldue { payloadGenSeqExperiment } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.6.0.2/main.nf' params([*:params, 'cleanup': false])
 
 // please update workflow code as needed
 workflow ArgoDataSubmissionWf {
-  take:  // update as needed
-    input_file
+  take:
+    download_mode
+    experiment_info_tsv
+    read_group_info_tsv
+    file_info_tsv
+    extra_info_tsv
+    ascp_scp_host
+    ascp_scp_user
+    aspera_scp_pass
+    c4gh_secret_key
+    c4gh_pass_phrase
+    pyega3_ega_user
+    pyega3_ega_pass
+    study_id
+  main:
 
+    payloadGenSeqExperiment(
+      file(experiment_info_tsv),
+      file(read_group_info_tsv),
+      file(file_info_tsv),
+      file(extra_info_tsv)
+    )
 
-  main:  // update as needed
-    demoCopyFile(input_file)
+    ids_to_download=Channel.fromPath(file_info_tsv) | splitCsv( header : true , sep:'\t') | map ( row -> ("${row.ega_file_path}"))
+    files_to_download=Channel.fromPath(file_info_tsv) | splitCsv( header : true , sep:'\t') | map( row -> ("${row.path}"))
 
+    if (download_mode=='local'){
+      EgaDownloadWf(
+      download_mode,
+      files_to_download,
+      ids_to_download,
+      ascp_scp_host,
+      ascp_scp_user,
+      aspera_scp_pass,
+      pyega3_ega_user,
+      pyega3_ega_pass,
+      c4gh_secret_key,
+      c4gh_pass_phrase
+      )
+    } else {
+      local_files=Channel.fromPath(file_info_tsv) | splitCsv( header : true , sep:'\t') | map( row -> file("${row.path}",checkIfExists : true))
+      sequence_files=local_files.collect()
+    }
+    
+    seqTools(
+      payloadGenSeqExperiment.out.payload,
+      sequence_files
+     )
 
-  emit:  // update as needed
-    output_file = demoCopyFile.out.output_file
+    if (validateSeqtools.out.validation_log.str =~ /INVALID/){
+      println "Metadata and files failed validate"
+      exit 1
+    }
 
+    SongScoreUpload(
+      study_id,
+      payloadGenSeqExperiment.out.payload,
+      sequence_files
+    )
+    
+
+    //if (params.cleanup && download_mode=='aspera') {
+    //  cleanup(
+    //    sequence_files.concat(downloadAspera.out.output_file.collect()).collect(),
+    //  )
+    //} else if (params.cleanup && download_mode=='pyega3'){
+    //  cleanup(
+    //    sequence_files,
+    //  )
+    //}
+
+    emit:
+      json_file=payloadGenSeqExperiment.out.payload
+      output_analysis_id=SongScoreUpload.out.analysis_id
 }
 
 
@@ -63,6 +177,18 @@ workflow ArgoDataSubmissionWf {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   ArgoDataSubmissionWf(
-    file(params.input_file)
+    params.download_mode,
+    params.experiment_info_tsv,
+    params.read_group_info_tsv,
+    params.file_info_tsv,
+    params.extra_info_tsv,
+    params.ascp_scp_host,
+    params.ascp_scp_user,
+    params.aspera_scp_pass,
+    params.c4gh_secret_key,
+    params.c4gh_pass_phrase,
+    params.pyega3_ega_user,
+    params.pyega3_ega_pass,
+    params.study_id
   )
 }

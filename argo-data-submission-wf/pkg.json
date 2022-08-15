@@ -16,7 +16,8 @@
         "github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.1",
         "github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0",
         "github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.0",
-        "github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1"
+        "github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1",
+        "github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.6.0.2"
     ],
     "devDependencies": [],
     "contributors": [
