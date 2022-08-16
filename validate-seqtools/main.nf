@@ -67,8 +67,9 @@ process validateSeqtools {
     // add and initialize variables here as needed
     args_skip_md5sum_check = params.skip_md5sum_check  ? "--skip_md5sum_check " : ""
     """
+    cp ${json_file} local_copy
     python3 /tools/main.py \
-      -j ${json_file} \
+      -j local_copy \
       ${args_skip_md5sum_check} \
       > seq-tools.log 2>&1
     """
