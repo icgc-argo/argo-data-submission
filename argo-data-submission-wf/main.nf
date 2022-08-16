@@ -58,6 +58,7 @@ params.c4gh_pass_phrase=""
 params.c4gh_secret_key="NO_FILE5"
 
 // SongScoreUpload
+params.SongScoreUpload = [:]
 params.max_retries = 5  // set to 0 will disable retry
 params.first_retry_wait_time = 1  // in seconds
 // SONG
@@ -91,8 +92,8 @@ include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-s
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { validateSeqtools } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
-include { egaDownloadWf } from "../ega-download-wf/main.nf" params([*:params, 'cleanup': false])
-incldue { payloadGenSeqExperiment } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.6.0.2/main.nf' params([*:params, 'cleanup': false])
+include { egaDownloadWf } from "../../ega-download-wf/main.nf" params([*:params, 'cleanup': false])
+include { payloadGenSeqExperiment } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.6.0.2/main.nf'
 
 // please update workflow code as needed
 workflow ArgoDataSubmissionWf {
@@ -112,21 +113,22 @@ workflow ArgoDataSubmissionWf {
     study_id
   main:
 
+    if (experiment_info_tsv.startsWith("NO_FILE") || read_group_info_tsv.startsWith("NO_FILE") || file_info_tsv.startsWith("NO_FILE")){
+      println "Not enough files to perform pipeline"
+      exit 1
+    }
     payloadGenSeqExperiment(
       file(experiment_info_tsv),
       file(read_group_info_tsv),
       file(file_info_tsv),
-      file(extra_info_tsv)
+      file(extra_info_tsv),
+      params.schema_url
     )
 
-    ids_to_download=Channel.fromPath(file_info_tsv) | splitCsv( header : true , sep:'\t') | map ( row -> ("${row.ega_file_path}"))
-    files_to_download=Channel.fromPath(file_info_tsv) | splitCsv( header : true , sep:'\t') | map( row -> ("${row.path}"))
-
-    if (download_mode=='local'){
+    if (download_mode!='local'){
       EgaDownloadWf(
       download_mode,
-      files_to_download,
-      ids_to_download,
+      file_info_tsv,
       ascp_scp_host,
       ascp_scp_user,
       aspera_scp_pass,
@@ -140,12 +142,12 @@ workflow ArgoDataSubmissionWf {
       sequence_files=local_files.collect()
     }
     
-    seqTools(
+    validateSeqtools(
       payloadGenSeqExperiment.out.payload,
       sequence_files
      )
 
-    if (validateSeqtools.out.validation_log.str =~ /INVALID/){
+    if (validateSeqtools.out.validation_log.name =~ /INVALID/){
       println "Metadata and files failed validate"
       exit 1
     }

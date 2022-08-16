@@ -1,0 +1,2 @@
+type	program_id	submitter_sequencing_experiment_id	submitter_donor_id	gender	submitter_specimen_id	tumour_normal_designation	specimen_type	specimen_tissue_source	submitter_sample_id	sample_type	submitter_matched_normal_sample_id	sequencing_center	platform	platform_model	experimental_strategy	sequencing_date	read_group_count	library_strandedness
+sequencing_experiment	TEST-PR	SLX-18928.UDP0002	TEST-DONOR_1	Male	TEST-SPECIMEN_1	Normal	Normal	Blood derived	TEST-SAMPLE_1	Total DNA			CRUK-CI	ILLUMINA	Illumina NovaSeq 6000	WGS	7	
