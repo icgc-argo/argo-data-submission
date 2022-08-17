@@ -72,6 +72,8 @@ process validateSeqtools {
       -j local_copy \
       ${args_skip_md5sum_check} \
       > seq-tools.log 2>&1
+    rm local_copy
+    ls validation_report.PASS*.jsonl && ( exit 0 || exit 1)
     """
 }
 
