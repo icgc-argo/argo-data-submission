@@ -1,9 +1,8 @@
 {
-    "ids_to_download," : "EGAF00001770106",
-    "files_to_download," : "EGAF00001770106.bam",
+    "file_info_tsv" : "tests/input/pyega3.tsv",
     "pyega3_ega_user" : "ega-test-data@ebi.ac.uk",
     "pyega3_ega_pass" : "egarocks",
-    "download_mode" : "aspera",
+    "download_mode" : "pyega3",
     "ascp_scp_host" : "",
     "ascp_scp_user" : "",
     "aspera_scp_pass" : ""
