@@ -24,7 +24,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0'  // package version
+version = '0.1.1'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.validate-seqtools'
@@ -67,10 +67,13 @@ process validateSeqtools {
     // add and initialize variables here as needed
     args_skip_md5sum_check = params.skip_md5sum_check  ? "--skip_md5sum_check " : ""
     """
+    cp ${json_file} local_copy
     python3 /tools/main.py \
-      -j ${json_file} \
+      -j local_copy \
       ${args_skip_md5sum_check} \
       > seq-tools.log 2>&1
+    rm local_copy
+    ls validation_report.PASS*.jsonl && ( exit 0 || exit 1)
     """
 }
 
