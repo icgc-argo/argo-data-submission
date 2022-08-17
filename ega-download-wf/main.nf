@@ -21,7 +21,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '0.1.0'  // package version
+version = '0.1.1'
 
 // universal params go here, change default value as needed
 params.container = ""
@@ -36,14 +36,13 @@ params.input_file = ""
 params.cleanup = true
 
 params.download_mode=""
-params.files_to_download=[]
-params.ids_to_download=[]
+params.file_info_tsv="NO_FILE1"
 
 params.ascp_scp_host=""
 params.ascp_scp_user=""
 params.aspera_scp_pass=""
 
-params.c4gh_secret_key="NO_FILE"
+params.c4gh_secret_key="NO_FILE2"
 params.c4gh_pass_phrase=""
 
 params.pyega3_ega_user=""
@@ -53,15 +52,11 @@ include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-s
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
 
-Channel.fromList(params.files_to_download).set{file_ch}
-Channel.fromList(params.ids_to_download).set{id_ch}
-
 // please update workflow code as needed
 workflow EgaDownloadWf {
   take:  // update as needed
     download_mode
-    files_to_download
-    ids_to_download
+    file_info_tsv
     ascp_scp_host
     ascp_scp_user
     aspera_scp_pass
@@ -70,24 +65,13 @@ workflow EgaDownloadWf {
     c4gh_secret_key
     c4gh_pass_phrase
   main:  // update as needed
-
+    Channel.fromPath(file_info_tsv).splitCsv(sep:'\t',header:true).map( row -> row.path).set{file_ch}
+    Channel.fromPath(file_info_tsv).splitCsv(sep:'\t',header:true).map( row -> row.ega_file_id).set{id_ch}
 
     if ( download_mode=='aspera' ){
-      if (id_ch.count()!=file_ch.count()){
-      println "# of ega_file_ids != # of file paths. Please Correct."
-      exit 1
-      }
-      else if (files_to_download.size()==0){
-      println "# of ega_file_ids != # of file paths. Please Correct."
-      exit 1
-      }
-      else if (ids_to_download.size()==0){
-      println "# of ega_file_ids != # of file paths. Please Correct."
-      exit 1
-      } else {
       downloadAspera(
-        files_to_download,
-        ids_to_download,
+        file_ch,
+        id_ch,
         ascp_scp_host,
         ascp_scp_user,
         aspera_scp_pass)
@@ -99,14 +83,7 @@ workflow EgaDownloadWf {
         )
 
       sequence_files=decryptAspera.out.output_files.collect()
-      }
     } else if (download_mode=='pyega3'){
-
-      if (ids_to_download.size()==0){
-      println "# of ega_file_ids must be greater than 0. Please Correct."
-      exit 1
-      }
-
       downloadPyega3(
         id_ch,
         pyega3_ega_user,
@@ -131,8 +108,7 @@ workflow EgaDownloadWf {
 workflow {
   EgaDownloadWf(
     params.download_mode,
-    params.files_to_download,
-    params.ids_to_download,
+    params.file_info_tsv,
     params.ascp_scp_host,
     params.ascp_scp_user,
     params.aspera_scp_pass,
