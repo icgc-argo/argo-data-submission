@@ -26,7 +26,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '0.1.1'
+version = '0.1.2'
 
 // universal params
 params.publish_dir = ""
