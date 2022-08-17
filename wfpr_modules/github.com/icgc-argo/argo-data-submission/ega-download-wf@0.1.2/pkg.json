@@ -1,7 +1,7 @@
 {
-    "name": "argo-data-submission-wf",
-    "version": "0.1.0",
-    "description": "ARGO data submission workflow",
+    "name": "ega-download-wf",
+    "version": "0.1.2",
+    "description": "Workflow wrapper for various methods to download data from EGA-archive",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
@@ -14,11 +14,7 @@
     "dependencies": [
         "github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0",
         "github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.2",
-        "github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0",
-        "github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.2",
-        "github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.2",
-        "github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1",
-        "github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.6.0.2"
+        "github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0"
     ],
     "devDependencies": [],
     "contributors": [

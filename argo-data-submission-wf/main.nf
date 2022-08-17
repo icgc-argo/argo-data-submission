@@ -39,6 +39,7 @@ params.download_mode="local"
 params.study_id="TEST-PR"
 
 // payloadGenSeqExperiment
+params.schema_url="https://submission-song.rdpc.cancercollaboratory.org/schemas/sequencing_experiment"
 params.experiment_info_tsv="NO_FILE1"
 params.read_group_info_tsv="NO_FILE2"
 params.file_info_tsv="NO_FILE3"
@@ -88,11 +89,11 @@ SongScoreUpload_params = [
 ]
 
 include { SongScoreUpload } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(SongScoreUpload_params)
-include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.1/main.nf' params([*:params, 'cleanup': false])
+include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.2/main.nf' params([*:params, 'cleanup': false])
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
-include { validateSeqtools } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.0/main.nf' params([*:params, 'cleanup': false])
+include { validateSeqtools } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.2/main.nf' params([*:params, 'cleanup': false])
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
-include { egaDownloadWf } from "../../ega-download-wf/main.nf" params([*:params, 'cleanup': false])
+include { EgaDownloadWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.2/main.nf'
 include { payloadGenSeqExperiment } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.6.0.2/main.nf'
 
 // please update workflow code as needed
@@ -146,11 +147,6 @@ workflow ArgoDataSubmissionWf {
       payloadGenSeqExperiment.out.payload,
       sequence_files
      )
-
-    if (validateSeqtools.out.validation_log.name =~ /INVALID/){
-      println "Metadata and files failed validate"
-      exit 1
-    }
 
     SongScoreUpload(
       study_id,
