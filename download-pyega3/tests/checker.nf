@@ -75,13 +75,11 @@ process file_smart_diff {
 workflow checker {
   take:
     ega_id
-    pyega3_ega_user
-    pyega3_ega_pass
+
   main:
     downloadPyega3(
       ega_id,
-      pyega3_ega_user,
-      pyega3_ega_pass
+      true
     )
 
     file_smart_diff(
@@ -92,8 +90,6 @@ workflow checker {
 
 workflow {
   checker(
-    params.ega_id,
-    params.pyega3_ega_user,
-    params.pyega3_ega_pass
+    params.ega_id
   )
 }
