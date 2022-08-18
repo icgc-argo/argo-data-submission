@@ -18,11 +18,7 @@
 
   Authors:
     Edmund Su
-*/
-
-/*
- This is an auto-generated checker workflow to test the generated main template workflow, it's
- meant to illustrate how testing works. Please update to suit your own needs.
+    Linda Xiang
 */
 
 nextflow.enable.dsl = 2
@@ -35,14 +31,23 @@ params.container_registry = ""
 params.container_version = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.download_mode=""
+params.file_info_tsv="NO_FILE1"
+
+params.ascp_scp_host=""
+params.ascp_scp_user=""
+params.aspera_scp_pass=""
+
+params.c4gh_secret_key="NO_FILE2"
+params.c4gh_pass_phrase=""
+
+params.pyega3_ega_user=""
+params.pyega3_ega_pass=""
+
 params.expected_output = ""
-params.cleanup = false
+params.cleanup = true
 
-include { EgaDownloadWf } from '../main'
-// include section starts
-// include section ends
-
+include { EgaDownloadWf } from '../main' params([*:params, 'cleanup': false])
 
 process file_smart_diff {
   input:
@@ -72,16 +77,19 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    download_mode
+    file_info_tsv
     expected_output
 
   main:
     EgaDownloadWf(
-      input_file
+      download_mode,
+      file_info_tsv,
+      true
     )
 
     file_smart_diff(
-      EgaDownloadWf.out.output_file,
+      EgaDownloadWf.out.sequence_files,
       expected_output
     )
 }
@@ -89,7 +97,8 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
+    params.download_mode,
+    params.file_info_tsv,
     file(params.expected_output)
   )
 }
