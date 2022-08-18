@@ -76,17 +76,13 @@ workflow checker {
   take:
     target_file
     EGAF
-    ASCP_SCP_HOST
-    ASCP_SCP_USER
-    ASPERA_SCP_PASS
+
 
   main:
   downloadAspera(
     params.target_file,
     params.EGAF,
-    params.ASCP_SCP_HOST,
-    params.ASCP_SCP_USER,
-    params.ASPERA_SCP_PASS,
+    true
   )
 
     file_smart_diff(
@@ -98,9 +94,6 @@ workflow checker {
 workflow {
   checker(
     params.target_file,
-    params.EGAF,
-    params.ASCP_SCP_HOST,
-    params.ASCP_SCP_USER,
-    params.ASPERA_SCP_PASS,
+    params.EGAF
   )
 }

@@ -18,6 +18,7 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
@@ -60,9 +61,8 @@ process downloadAspera {
   input:  // input, make update as needed
     val target_file
     val EGAF
-    val ASCP_SCP_HOST
-    val ASCP_SCP_USER
-    val ASPERA_SCP_PASS
+    val dependency
+
   output:  // output, make update as needed
     path "${EGAF}/${regexed_file_name}", emit: output_file
 
@@ -71,9 +71,9 @@ process downloadAspera {
     regexed_file_name=target_file.replaceAll(/^.*\//,'')
     """
     mkdir ${EGAF}
-    export ASCP_SCP_HOST=${ASCP_SCP_HOST}
-    export ASCP_SCP_USER=${ASCP_SCP_USER}
-    export ASPERA_SCP_PASS=${ASPERA_SCP_PASS}
+    export ASCP_SCP_HOST=${params.ASCP_SCP_HOST}
+    export ASCP_SCP_USER=${params.ASCP_SCP_USER}
+    export ASPERA_SCP_PASS=${params.ASPERA_SCP_PASS}
     python3.6 /tools/main.py \\
       -f ${target_file} \\
       -o ${EGAF} \\
@@ -87,8 +87,6 @@ workflow {
   downloadAspera(
     params.target_file,
     params.EGAF,
-    params.ASCP_SCP_HOST,
-    params.ASCP_SCP_USER,
-    params.ASPERA_SCP_PASS,
+    true
   )
 }
