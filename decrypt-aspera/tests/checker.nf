@@ -53,6 +53,8 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
+params.c4gh_secret_key = ""
+params.c4gh_pass_phrase = ""
 params.expected_output = "./expected/mystery_contents.bam"
 
 include { decryptAspera } from '../main'
@@ -82,15 +84,12 @@ process file_smart_diff {
 workflow checker {
   take:
     input_file
-    c4gh_secret_key
     expected_output
-    c4gh_pass_phrase
 
   main:
     decryptAspera(
-    file(input_file),
-    file(params.c4gh_secret_key),
-    c4gh_pass_phrase
+      file(input_file),
+      file(params.c4gh_secret_key)
    )
 
     file_smart_diff(
@@ -103,8 +102,6 @@ workflow checker {
 workflow {
   checker(
     params.file,
-    params.c4gh_secret_key,
     params.expected_output,
-    params.c4gh_pass_phrase
   )
 }
