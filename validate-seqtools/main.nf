@@ -18,6 +18,7 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
@@ -62,6 +63,7 @@ process validateSeqtools {
 
   output:  // output, make update as needed
     path "validation_report.*.jsonl", emit: validation_log
+    path "local_copy", emit: validated_payload
 
   script:
     // add and initialize variables here as needed
@@ -72,8 +74,14 @@ process validateSeqtools {
       -j local_copy \
       ${args_skip_md5sum_check} \
       > seq-tools.log 2>&1
-    rm local_copy
-    ls validation_report.PASS*.jsonl && ( exit 0 || exit 1)
+
+    if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
+      echo "Payload is INVALID. Please check out details in validation report under: "
+      pwd 
+      exit 1
+    else
+      exit 0
+    fi
     """
 }
 
