@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.2'
+version = '0.1.3'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-pyega3'
@@ -75,13 +75,11 @@ process file_smart_diff {
 workflow checker {
   take:
     ega_id
-    pyega3_ega_user
-    pyega3_ega_pass
+
   main:
     downloadPyega3(
       ega_id,
-      pyega3_ega_user,
-      pyega3_ega_pass
+      true
     )
 
     file_smart_diff(
@@ -92,8 +90,6 @@ workflow checker {
 
 workflow {
   checker(
-    params.ega_id,
-    params.pyega3_ega_user,
-    params.pyega3_ega_pass
+    params.ega_id
   )
 }

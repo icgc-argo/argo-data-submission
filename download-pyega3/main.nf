@@ -18,13 +18,14 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.2'
+version = '0.1.3'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-pyega3'
@@ -58,17 +59,16 @@ process downloadPyega3 {
 
   input:  // input, make update as needed
     val ega_id
-    val pyega3_ega_user
-    val pyega3_ega_pass
+    val dependency
 
   output:  // output, make update as needed
     path "${ega_id}/*.md5", emit: md5_file
-    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,bcf}", emit : output_files
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,vcf.gz,bcf}", emit : output_files
   script:
 
     """
-    export PYEGA3_EGA_USER=${pyega3_ega_user}
-    export PYEGA3_EGA_PASS=${pyega3_ega_pass}
+    export PYEGA3_EGA_USER=${params.pyega3_ega_user}
+    export PYEGA3_EGA_PASS=${params.pyega3_ega_pass}
     mkdir -p ${ega_id}
     python3.6 /tools/main.py \\
     	-f ${ega_id} \\
@@ -84,8 +84,7 @@ process downloadPyega3 {
 workflow {
   downloadPyega3(
     params.ega_id,
-    params.pyega3_ega_user,
-    params.pyega3_ega_pass
+    true
   )
 }
 
