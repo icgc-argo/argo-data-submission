@@ -18,13 +18,14 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.0'  // package version
+version = '0.1.1'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.decrypt-aspera'
@@ -59,7 +60,7 @@ process decryptAspera {
   input:  // input, make update as needed
     path file
     path c4gh_secret_key
-    val c4gh_pass_phrase
+
   output:  // output, make update as needed
     path "*.md5", emit: md5_file
     path "*.{bam,cram,fastq.gz,fq.gz}", emit: output_files
@@ -69,7 +70,7 @@ process decryptAspera {
 
     """
     export C4GH_SECRET_KEY=${c4gh_secret_key}
-    export C4GH_PASSPHRASE=${c4gh_pass_phrase} 
+    export C4GH_PASSPHRASE=${params.c4gh_pass_phrase} 
     python3.6 /tools/main.py \\
       -f ${file} \\
       > decrypt.log 2>&1
@@ -82,7 +83,6 @@ process decryptAspera {
 workflow {
   decryptAspera(
     file(params.file),
-    file(params.c4gh_secret_key),
-    params.c4gh_pass_phrase
+    file(params.c4gh_secret_key)
   )
 }
