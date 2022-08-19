@@ -50,7 +50,7 @@ params.pyega3_ega_pass=""
 
 include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.3/main.nf' params([*:params, 'cleanup': false])
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.1/main.nf' params([*:params, 'cleanup': false])
-include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.0/main.nf' params([*:params, 'cleanup': false])
+include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1/main.nf' params([*:params, 'cleanup': false])
 
 // please update workflow code as needed
 workflow EgaDownloadWf {
