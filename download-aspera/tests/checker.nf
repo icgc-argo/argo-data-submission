@@ -43,7 +43,11 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-
+params.target_file=''
+params.ega_file_id=''
+params.ascp_scp_host=''
+params.ascp_scp_user=''
+params.aspera_scp_pass=''
 
 include { downloadAspera } from '../main.nf'
 
@@ -75,15 +79,15 @@ process file_smart_diff {
 workflow checker {
   take:
     target_file
-    EGAF
+    ega_file_id
 
 
   main:
-  downloadAspera(
-    params.target_file,
-    params.EGAF,
-    true
-  )
+    downloadAspera(
+      target_file,
+      ega_file_id,
+      true
+    )
 
     file_smart_diff(
       downloadAspera.out.output_file,
@@ -94,6 +98,6 @@ workflow checker {
 workflow {
   checker(
     params.target_file,
-    params.EGAF
+    params.ega_file_id
   )
 }
