@@ -25,7 +25,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.1'
+version = '0.1.2'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-aspera'
@@ -46,10 +46,10 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.target_file=''
-params.EGAF=''
-params.ASCP_SCP_HOST=''
-params.ASCP_SCP_USER=''
-params.ASPERA_SCP_PASS=''
+params.ega_file_id=''
+params.ascp_scp_host=''
+params.ascp_scp_user=''
+params.aspera_scp_pass=''
 
 process downloadAspera {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -60,23 +60,23 @@ process downloadAspera {
 
   input:  // input, make update as needed
     val target_file
-    val EGAF
+    val ega_file_id
     val dependency
 
   output:  // output, make update as needed
-    path "${EGAF}/${regexed_file_name}", emit: output_file
+    path "${ega_file_id}/${regexed_file_name}", emit: output_file
 
   script:
     // add and initialize variables here as needed
     regexed_file_name=target_file.replaceAll(/^.*\//,'')
     """
-    mkdir ${EGAF}
-    export ASCP_SCP_HOST=${params.ASCP_SCP_HOST}
-    export ASCP_SCP_USER=${params.ASCP_SCP_USER}
-    export ASPERA_SCP_PASS=${params.ASPERA_SCP_PASS}
+    mkdir ${ega_file_id}
+    export ASCP_SCP_HOST=${params.ascp_scp_host}
+    export ASCP_SCP_USER=${params.ascp_scp_user}
+    export ASPERA_SCP_PASS=${params.aspera_scp_pass}
     python3.6 /tools/main.py \\
       -f ${target_file} \\
-      -o ${EGAF} \\
+      -o ${ega_file_id} \\
       > download.log 2>&1
     """
 }
@@ -86,7 +86,7 @@ process downloadAspera {
 workflow {
   downloadAspera(
     params.target_file,
-    params.EGAF,
+    params.ega_file_id,
     true
   )
 }

@@ -40,7 +40,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='Download files from EGA aspera server')
     parser.add_argument('-f', '--file_name', dest="file_name", help="EGA file name", required=True)
-    parser.add_argument('-o', '--output', dest='output', help="Output file name", required=True)
+    parser.add_argument('-o', '--output', dest='output', help="Output file folder", required=True)
     results = parser.parse_args()
 
     file_list = randomword(60)+".txt"
