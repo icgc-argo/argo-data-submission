@@ -1,9 +1,6 @@
 {
-    "file_info_tsv" : "tests/input/pyega3.tsv",
+    "file_info_tsv" : "input/pyega3.tsv",
     "pyega3_ega_user" : "ega-test-data@ebi.ac.uk",
     "pyega3_ega_pass" : "egarocks",
-    "download_mode" : "pyega3",
-    "ascp_scp_host" : "",
-    "ascp_scp_user" : "",
-    "aspera_scp_pass" : ""
+    "download_mode" : "pyega3"
 }
