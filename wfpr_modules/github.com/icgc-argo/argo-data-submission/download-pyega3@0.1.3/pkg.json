@@ -1,31 +1,34 @@
 {
-    "name": "ega-download-wf",
+    "name": "download-pyega3",
     "version": "0.1.3",
-    "description": "Workflow wrapper for various methods to download data from EGA-archive",
+    "description": "EGA download client",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
-        "bioinformatics"
+        "bioinformatics",
+        "seq"
     ],
     "repository": {
         "type": "git",
         "url": "https://github.com/icgc-argo/argo-data-submission.git"
     },
-    "dependencies": [
-        "github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2",
-        "github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.3",
-        "github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1"
-    ],
+    "container": {
+        "registries": [
+            {
+                "registry": "ghcr.io",
+                "type": "docker",
+                "org": "icgc-argo",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
     "devDependencies": [],
     "contributors": [
         {
             "name": "Edmund Su",
             "email": "edmund.su@oicr.on.ca"
-        },
-        {
-          "name": "Linda Xiang",
-          "email": "linda.xiang@oicr.on.ca"
-      }
+        }
     ],
     "license": "GNU Affero General Public License v3",
     "bugReport": "https://github.com/icgc-argo/argo-data-submission/issues",
