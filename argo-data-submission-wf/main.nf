@@ -48,6 +48,9 @@ params.read_group_info_tsv="NO_FILE2"
 params.file_info_tsv="NO_FILE3"
 params.extra_info_tsv="NO_FILE4"
 
+//validate seq-tools
+params.skip_md5sum_check = false
+
 // downloadPyega3
 params.pyega3_ega_user=""
 params.pyega3_ega_pass=""
@@ -81,6 +84,7 @@ validateSeq_params = [
   'cpus': params.cpus,
   'mem': params.mem,
   'publish_dir': params.publish_dir,
+  'skip_md5sum_check': params.skip_md5sum_check,
   *:(params.validateSeq ?: [:]) 
 ]
 
@@ -88,6 +92,13 @@ egaDownload_params = [
   'cpus': params.cpus,
   'mem': params.mem,
   'publish_dir': params.publish_dir,
+  'pyega3_ega_user': params.pyega3_ega_user,
+  'pyega3_ega_pass': params.pyega3_ega_pass,
+  'ascp_scp_host': params.ascp_scp_host,
+  'ascp_scp_user': params.ascp_scp_user,
+  'aspera_scp_pass': params.aspera_scp_pass,
+  'c4gh_pass_phrase': params.c4gh_pass_phrase,
+  'c4gh_secret_key': params.c4gh_secret_key,
   *:(params.egaDownload ?: [:]) 
 ]
 
