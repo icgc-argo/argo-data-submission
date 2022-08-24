@@ -1,0 +1,6 @@
+{
+    "file_info_tsv" : "input/pyega3-problem-no-ega.tsv",
+    "pyega3_ega_user" : "ega-test-data@ebi.ac.uk",
+    "pyega3_ega_pass" : "egarocks",
+    "download_mode" : "pyega3"
+}
