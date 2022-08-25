@@ -80,6 +80,7 @@ decryptAspera_params = [
 include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.3/main.nf' params(downloadPyega3_params)
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2/main.nf' params(downloadAspera_params)
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1/main.nf' params(decryptAspera_params)
+include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 
 // please update workflow code as needed
 workflow EgaDownloadWf {
@@ -125,6 +126,12 @@ workflow EgaDownloadWf {
         )
 
       sequence_files=decryptAspera.out.output_files.collect()
+      if (params.cleanup &) {
+        cleanup(
+          downloadAspera.out.output_file.collect(),
+          sequence_files
+          )  // wait until upload is done
+      }
     } else if (download_mode=='pyega3'){
       Channel
       .fromPath(file_info_tsv)
