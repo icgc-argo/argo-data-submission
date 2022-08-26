@@ -126,11 +126,11 @@ workflow EgaDownloadWf {
         )
 
       sequence_files=decryptAspera.out.output_files.collect()
-      if (params.cleanup &) {
+      if (params.cleanup) {
         cleanup(
           downloadAspera.out.output_file.collect(),
-          sequence_files
-          )  // wait until upload is done
+          sequence_files //depedency
+          )
       }
     } else if (download_mode=='pyega3'){
       Channel
@@ -157,8 +157,7 @@ workflow EgaDownloadWf {
       
       sequence_files=downloadPyega3.out.output_files.collect()
     } else {
-      println "Invalid download mode. Please specify 'pyega3' or 'aspera'"
-      exit 1
+      exit 1,"Invalid download mode. Please specify 'pyega3' or 'aspera'"
     }
 
   emit:  // update as needed
