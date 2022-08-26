@@ -22,7 +22,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '0.1.3'
+version = '0.1.4'
 
 // universal params go here, change default value as needed
 params.container = ""
@@ -48,9 +48,39 @@ params.c4gh_pass_phrase=""
 params.pyega3_ega_user=""
 params.pyega3_ega_pass=""
 
-include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.3/main.nf' params([*:params, 'cleanup': false])
-include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2/main.nf' params([*:params, 'cleanup': false])
-include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1/main.nf' params([*:params, 'cleanup': false])
+params.downloadPyega3=[:]
+params.downloadAspera=[:]
+params.decryptAspera=[:]
+
+downloadPyega3_params = [
+  'cpus': params.cpus,
+  'mem': params.mem,
+  'publish_dir': params.publish_dir,
+  'pyega3_ega_user': params.pyega3_ega_user,
+  'pyega3_ega_pass': params.pyega3_ega_pass,
+  *:(params.downloadPyega3 ?: [:]) 
+]
+
+downloadAspera_params = [
+  'cpus': params.cpus,
+  'mem': params.mem,
+  'ascp_scp_host': params.ascp_scp_host,
+  'ascp_scp_user': params.ascp_scp_user,
+  'aspera_scp_pass': params.aspera_scp_pass,
+  *:(params.downloadAspera ?: [:]) 
+]
+
+decryptAspera_params = [
+  'c4gh_pass_phrase': params.c4gh_pass_phrase,
+  'c4gh_secret_key': params.c4gh_secret_key,
+  *:(params.decryptAspera ?: [:]) 
+]
+
+
+include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.3/main.nf' params(downloadPyega3_params)
+include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2/main.nf' params(downloadAspera_params)
+include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1/main.nf' params(decryptAspera_params)
+include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 
 // please update workflow code as needed
 workflow EgaDownloadWf {
@@ -64,6 +94,27 @@ workflow EgaDownloadWf {
     Channel.fromPath(file_info_tsv).splitCsv(sep:'\t',header:true).map( row -> row.ega_file_id).set{id_ch}
 
     if ( download_mode=='aspera' ){
+      Channel
+      .fromPath(file_info_tsv)
+      .splitCsv(sep:'\t',header:true)
+      .map(
+        row -> [
+          name : row.name,
+          ega_file_id : row.ega_file_id, 
+          path : row.path,
+        ]
+      )
+      .branch {
+        errorAB: it.path.size()==0 & it.ega_file_id.size()==0
+          exit 1, "Insufficient # of file `ega_file_ids` and `path` provided"
+        errorA: it.ega_file_id.size()==0
+          exit 1,"Insufficient # of `ega_file_ids` provided"
+        errorB: it.path.size()==0
+          exit 1, "Insufficient # of file `path` provided"
+        other: true
+          return 0
+      }
+
       downloadAspera(
         file_ch,
         id_ch,
@@ -75,7 +126,30 @@ workflow EgaDownloadWf {
         )
 
       sequence_files=decryptAspera.out.output_files.collect()
+      if (params.cleanup) {
+        cleanup(
+          downloadAspera.out.output_file.collect(),
+          sequence_files //depedency
+          )
+      }
     } else if (download_mode=='pyega3'){
+      Channel
+      .fromPath(file_info_tsv)
+      .splitCsv(sep:'\t',header:true)
+      .map(
+        row -> [
+          name : row.name,
+          ega_file_id : row.ega_file_id, 
+          path : row.path,
+        ]
+      )
+      .branch {
+        errorA: it.ega_file_id.size()==0
+          exit 1,"Insufficient # of `ega_file_ids` provided"
+        other: true
+          return 0
+      }
+
       downloadPyega3(
         id_ch,
         dependency
@@ -83,8 +157,7 @@ workflow EgaDownloadWf {
       
       sequence_files=downloadPyega3.out.output_files.collect()
     } else {
-      println "Invalid download mode. Please specify 'pyega3' or 'aspera'"
-      exit 1
+      exit 1,"Invalid download mode. Please specify 'pyega3' or 'aspera'"
     }
 
   emit:  // update as needed
