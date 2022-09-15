@@ -47,6 +47,7 @@ params.experiment_info_tsv="NO_FILE1"
 params.read_group_info_tsv="NO_FILE2"
 params.file_info_tsv="NO_FILE3"
 params.extra_info_tsv="NO_FILE4"
+params.metadata_payload_json="NO_FILE6"
 
 //validate seq-tools
 params.skip_md5sum_check = false
@@ -116,7 +117,7 @@ upload_params = [
 include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.4/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.4/main.nf' params(egaDownload_params)
-include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.7.0/main.nf' params(payloadGen_params)
+include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.7.1/main.nf' params(payloadGen_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 
 // please update workflow code as needed
@@ -127,10 +128,14 @@ workflow ArgoDataSubmissionWf {
     read_group_info_tsv
     file_info_tsv
     extra_info_tsv
+    metadata_payload_json
     
   main:
 
-    if (experiment_info_tsv.startsWith("NO_FILE") || read_group_info_tsv.startsWith("NO_FILE") || file_info_tsv.startsWith("NO_FILE")){
+    if (
+      (experiment_info_tsv.startsWith("NO_FILE") && read_group_info_tsv.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE")) ||
+      (metadata_payload_json.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE"))
+      ){
       exit 1,"Not enough files to perform pipeline"
     }
     // generate payload
@@ -139,6 +144,7 @@ workflow ArgoDataSubmissionWf {
       file(read_group_info_tsv),
       file(file_info_tsv),
       file(extra_info_tsv),
+      file(metadata_payload_json),
       params.schema_url
     )
 
@@ -189,6 +195,7 @@ workflow {
     params.experiment_info_tsv,
     params.read_group_info_tsv,
     params.file_info_tsv,
-    params.extra_info_tsv 
+    params.extra_info_tsv,
+    params.metadata_payload_json
   )
 }
