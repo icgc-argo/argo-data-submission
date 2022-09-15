@@ -134,7 +134,8 @@ workflow ArgoDataSubmissionWf {
 
     if (
       (experiment_info_tsv.startsWith("NO_FILE") && read_group_info_tsv.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE")) ||
-      (metadata_payload_json.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE"))
+      (metadata_payload_json.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE")) ||
+      file_info_tsv.startsWith("NO_FILE")
       ){
       exit 1,"Not enough files to perform pipeline"
     }
