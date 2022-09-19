@@ -1,0 +1,18 @@
+Field	Attribute	Description	Permissible Values	Note
+type	Required	table type	sequencing_file	
+submitter_read_group_id	Required	The identifier of a read group. Must be unique within each sample. After submission, the submitter_read_group_id in the metadata will be used for all future @RG ID in the header.	String values that meet the regular expression ^[a-zA-Z0-9\\-_:\\.']+$.	
+name	Required	Name of the file.	String values must meet the regular expression ^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$. No paths are allowed in the file name.	
+format	Required	Data format of sequencing files.	BAM, FASTQ	
+size	Required	Size of the file, in bytes.		
+md5sum	Required	Computed md5sum of the file. 	String values must meet the regular expression ^[a-fA-F0-9]{32}$	
+path	Required	The path to the file to be submitted		Required for local data and data downloaded from EGA through Aspera
+ega_file_id	Conditional Required	EGA File Unique Accession ID	^EGAF[0-9]{1,32}$	Required for data downloaded from EGA
+ega_dataset_id	Optional	EGA Dataset Accession ID	^EGAD[0-9]{1,32}$	
+ega_experiment_id	Optional	EGA Experiment ID	^EGAX[0-9]{1,32}$	
+ega_sample_id	Optional	EGA Sample Accession ID	^EGAN[0-9]{1,32}$	
+ega_study_id	Optional	EGA Study Accession ID	^EGAS[0-9]{1,32}$	
+ega_run_id	Optional	EGA Run Accession ID	^EGAR[0-9]{1,32}$	
+ega_policy_id	Optional	EGA Policy Accession ID	^EGAP[0-9]{1,32}$	
+ega_analysis_id	Optional	EGA Analysis Accession ID	^EGAZ[0-9]{1,32}$	
+ega_submission_id	Optional	EGA Submission ID	^EGAB[0-9]{1,32}$	
+ega_dac_id	Optional	EGA DAC Accession ID	^EGAC[0-9]{1,32}$	
