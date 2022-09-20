@@ -1,0 +1,2 @@
+type	name	format	size	md5sum	path
+file	anon_chr1_complete.bam	BAM	258104	601d12fbfea8d9b8b2f33f35a1b1bd53	input/anon_chr1_complete.bam
