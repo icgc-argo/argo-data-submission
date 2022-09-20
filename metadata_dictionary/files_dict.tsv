@@ -1,6 +1,5 @@
 Field	Attribute	Description	Permissible Values	Note
 type	Required	table type	sequencing_file	
-submitter_read_group_id	Required	The identifier of a read group. Must be unique within each sample. After submission, the submitter_read_group_id in the metadata will be used for all future @RG ID in the header.	String values that meet the regular expression ^[a-zA-Z0-9\\-_:\\.']+$.	
 name	Required	Name of the file.	String values must meet the regular expression ^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$. No paths are allowed in the file name.	
 format	Required	Data format of sequencing files.	BAM, FASTQ	
 size	Required	Size of the file, in bytes.		
