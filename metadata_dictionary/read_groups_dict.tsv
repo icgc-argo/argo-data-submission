@@ -11,4 +11,4 @@ read_length_r1	Required	Length of sequencing reads in file_r1; this corresponds 
 read_length_r2	Required	Length of sequencing reads in file_r2; this corresponds to the number of sequencing cycles of the second end.	Integer with a minimum value of 20 or null.	
 insert_size	Required	For paired-end sequencing, the average size of sequences between two sequencing ends. Required only for paired-end sequencing.	Integer with a minimum value of 0 or null.	
 sample_barcode	Required	According to the SAM specification, this is the expected barcode bases as read by the sequencing machine in the absence of errors.	Any string value or null. 	
-library_name	Required	Name of a sequencing library made from a molecular sample or a sample pool (multiplex sequencing). Must also be specified within Bam header "LB".	Any string value.	
+library_name	Required	Name of a sequencing library made from a molecular sample or a sample pool (multiplex sequencing). Must also be specified within Bam header LB.	Any string value.	
