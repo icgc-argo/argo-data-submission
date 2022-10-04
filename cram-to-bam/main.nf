@@ -48,7 +48,8 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 params.input_file = "NO_FILE1"
 params.output_file = "NO_FILE2"
 params.reference_file = "NO_FILE3"
-params.index_file = "NO_FILE4"
+params.fai_file = "NO_FILE4"
+params.gzi_file = "NO_FILE4"
 
 params.output_pattern = "*"  // output file name pattern
 
@@ -63,7 +64,8 @@ process cramToBam {
   input:  // input, make update as needed
     path input_file
     path reference_file
-    path index_file
+    path fai_file
+    path gzi_file
 
   output:  // output, make update as needed
     path "*.bam", emit: output_file
@@ -86,6 +88,7 @@ workflow {
   cramToBam(
     file(params.input_file),
     file(params.reference_file),
-    file(params.index_file)
+    file(params.fai_file),
+    file(params.gzi_file)
   )
 }

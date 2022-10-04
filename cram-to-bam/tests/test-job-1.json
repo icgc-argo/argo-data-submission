@@ -1,6 +1,6 @@
 {
     "input_file": "input/test_rg_3.cram",
-    "index_file": "input/hs37d5.fa.fai",
+    "fai_file": "input/hs37d5.fa.fai",
     "expected_file": "input/og_test_rg_3.bam",
     "cpus": 1,
     "mem": 0.5

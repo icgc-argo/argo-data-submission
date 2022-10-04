@@ -55,7 +55,7 @@ process file_smart_diff {
   input:
     path output_file
     path reference_file
-    path index_file
+    path fai_file
     path expected_file
 
   output:
@@ -109,7 +109,7 @@ process cleanup{
 workflow checker {
   take:
     input_file
-    index_file
+    fai_file
     expected_file
 
   main:
@@ -118,13 +118,13 @@ workflow checker {
   cramToBam(
     input_file,
     download_required_files.out.reference_file,
-    index_file
+    fai_file
   )
 
     file_smart_diff(
       cramToBam.out.output_file,
       download_required_files.out.reference_file,
-      index_file,
+      fai_file,
       expected_file
     )
 
@@ -139,7 +139,7 @@ workflow checker {
 workflow {
   checker(
     file(params.input_file),
-    file(params.index_file),
+    file(params.fai_file),
     file(params.expected_file)
   )
 }

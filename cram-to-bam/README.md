@@ -1,7 +1,7 @@
 # Package cram-to-bam
 
 
-Please update this with a brief introduction of the package.
+Converts CRAM files to BAM files for data submission.
 
 
 ## Package development
@@ -12,13 +12,27 @@ versioning, updating, CI testing and releasing.
 
 
 ## Inputs
-
-Please list all input parameters
-
+If reference file is compressed
+```
+nextflow \
+../main.nf \
+--reference_file hs37d5.fa.gz \
+--fai_file hs37d5.fa.gz.fai \
+--gzi_file hs37d5.fa.gz.gzi \
+--input_file input/test_rg_3.cram
+```
+Otherwise
+```
+nextflow \
+../main.nf \
+--reference_file hs37d5.fa \
+--fai_file hs37d5.fa.fai \
+--input_file input/test_rg_3.cram
+```
 
 ## Outputs
 
-Please list all outputs
+See working directory for bam file
 
 
 ## Usage
