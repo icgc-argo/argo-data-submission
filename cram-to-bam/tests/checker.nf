@@ -43,8 +43,10 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.expected_output = ""
+params.input_file = "NO_FILE1"
+params.expected_output = "NO_FILE2"
+params.fai_file = "NO_FILE3"
+params.gzi_file = "NO_FILE4"
 
 include { cramToBam } from '../main'
 
@@ -63,10 +65,13 @@ process file_smart_diff {
 
   script:
     """
+    ### Compare header information
     diff \
       <(samtools view -H ${output_file} | grep '^@RG') \
       <(samtools view -H ${expected_file} | grep '^@RG') \
       || ( echo "Test FAILED, output file mismatch." && exit 1 )
+
+    ## Compare body information. Command also reorientates TAGS to match original
     diff \
       <(samtools view ${output_file} | grep -v 'SA:' | awk -v OFS='\\t' '{print \$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8,\$9,\$10,\$11,\$15,\$14,\$12,\$13,\$16}') \
       <(samtools view ${expected_file} -T ${reference_file} | grep -v 'SA:') \
@@ -83,7 +88,10 @@ process download_required_files{
   script:
     """
     curl ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz -o hs37d5.fa.gz
-    gunzip --quiet hs37d5.fa.gz || true
+    
+    ### Legacy RAZF gzip compression? this is a workaround
+    gunzip hs37d5.fa.gz || true
+
     diff <(echo '12a0bed94078e2d9e8c00da793bbc84e  hs37d5.fa') <(md5sum hs37d5.fa) \
       && ( echo "DOWNLOAD OK" && exit 0 ) || ( echo "DOWNLOAD BAD" && exit 1 )
     """
@@ -110,6 +118,7 @@ workflow checker {
   take:
     input_file
     fai_file
+    gzi_file
     expected_file
 
   main:
@@ -118,21 +127,22 @@ workflow checker {
   cramToBam(
     input_file,
     download_required_files.out.reference_file,
-    fai_file
+    fai_file,
+    gzi_file
   )
 
-    file_smart_diff(
-      cramToBam.out.output_file,
-      download_required_files.out.reference_file,
-      fai_file,
-      expected_file
-    )
+  file_smart_diff(
+    cramToBam.out.output_file,
+    download_required_files.out.reference_file,
+    fai_file,
+    expected_file
+  )
 
-    cleanup(
-      cramToBam.out.output_file,
-      download_required_files.out.reference_file,
-      file_smart_diff.out.status
-    )
+  cleanup(
+    cramToBam.out.output_file,
+    download_required_files.out.reference_file,
+    file_smart_diff.out.status
+  )
 }
 
 
@@ -140,6 +150,7 @@ workflow {
   checker(
     file(params.input_file),
     file(params.fai_file),
+    file(params.gzi_file),
     file(params.expected_file)
   )
 }
