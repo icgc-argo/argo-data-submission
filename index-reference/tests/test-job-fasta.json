@@ -1,0 +1,7 @@
+{
+    "reference_file": "input/hs37d5.fa",
+    "input_file": "hs37d5.fa",
+    "expected_output": "bb77e60e9a492fd0172e2b11e6c16afd",
+    "cpus": 1,
+    "mem": 0.5
+}

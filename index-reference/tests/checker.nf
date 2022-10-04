@@ -48,30 +48,47 @@ params.expected_output = ""
 
 include { indexReference } from '../main'
 
+process download_required_files {
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+
+  output:
+    path "hs37d5.fa.gz", emit: reference_file
+
+  script:
+    """
+    curl ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz -o hs37d5.fa.gz
+    """
+}
+
+process gunzip {
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+
+  input:
+    path compressed_file
+  output:
+    path "hs37d5.fa", emit: decompressed_file
+
+  script:
+    """
+    cat ${compressed_file} | zcat > hs37d5.fa || true
+    diff <(echo '12a0bed94078e2d9e8c00da793bbc84e  hs37d5.fa') <(md5sum hs37d5.fa) \
+      && ( echo "DOWNLOAD OK" && exit 0 ) || ( echo "DOWNLOAD BAD" && exit 1 )
+    """
+}
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
   input:
     path output_file
-    path expected_file
+    val expected_file
 
   output:
     stdout()
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
+    diff <(md5sum ${output_file} | cut -f1 -d' ') <(echo ${expected_file}) \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -83,12 +100,22 @@ workflow checker {
     expected_output
 
   main:
+
+    download_required_files()
+
+    if (input_file == 'hs37d5.fa'){
+      gunzip(download_required_files.out.reference_file)
+      reference_file=gunzip.out.decompressed_file
+    } else {
+      reference_file=download_required_files.out.reference_file
+    }
+
     indexReference(
-      input_file
+      reference_file
     )
 
     file_smart_diff(
-      indexReference.out.output_file,
+      indexReference.out.fai_file,
       expected_output
     )
 }
@@ -96,7 +123,7 @@ workflow checker {
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.input_file,
+    params.expected_output
   )
 }

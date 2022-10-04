@@ -25,29 +25,36 @@ import os
 import sys
 import argparse
 import subprocess
+import re
 
 
 def main():
     """
     Python implementation of tool: index-reference
-
     This is auto-generated Python code, please update as needed!
     """
 
     parser = argparse.ArgumentParser(description='Tool: index-reference')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
+    parser.add_argument('-r', '--reference-file', dest='reference_file', type=str,
+                        help='Reference CRAM file needed for conversion', required=True)
     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
 
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
+    if not os.path.isfile(args.reference_file):
+        sys.exit('Error: %s does not exist or is not accessible!' % (args.reference_file))
 
-    subprocess.run(f"fastqc -o {args.output_dir} {args.input_file}", shell=True, check=True)
+    if not re.findall(r'.fasta$|.fa$|.fna$|.fasta.gz$|.fa.gz$|.fna.gz$',args.reference_file):
+        sys.exit('Error: %s reference file follows an inappropriate format. Please re-submit' % (args.reference_file))
+
+    if os.path.isfile(args.reference_file + ".fai"):
+        sys.exit('%s exists already!' % (args.reference_file+".fai"))
+
+    subprocess.run(
+        'samtools faidx %s '% (
+            args.reference_file),
+        shell=True,
+        check=True
+        )
 
 
 if __name__ == "__main__":
