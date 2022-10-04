@@ -25,6 +25,7 @@ import os
 import sys
 import argparse
 import subprocess
+import re
 
 
 def main():
@@ -36,18 +37,30 @@ def main():
 
     parser = argparse.ArgumentParser(description='Tool: cram-to-bam')
     parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
+                        help='Input CRAM file', required=True)
+    parser.add_argument('-r', '--reference-file', dest='reference_file', type=str,
+                        help='Reference CRAM file needed for conversion', required=True)
+    parser.add_argument('-t', '--threads', dest='threads', type=int,default=1,
+                        help='# of threads to be used in the operation', required=False)
     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
+    for provided_file,parameter in zip(
+        [args.input_file,args.reference_file,args.reference_file+".fai"],
+        ["input file","reference genome","reference genome"]):
+            if not os.path.isfile(args.input_file):
+                sys.exit('Error: %s %s does not exist or is not accessible!' % (parameter,provided_file))
 
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
 
-    subprocess.run(f"fastqc -o {args.output_dir} {args.input_file}", shell=True, check=True)
+    output_file=re.sub(".cram$|.CRAM$",".bam",args.input_file)
+    subprocess.run(
+        'samtools view --threads %s -bh %s -o %s -T %s' % (
+            args.threads,
+            args.input_file,
+            output_file,
+            args.reference_file),
+        shell=True,
+        check=True
+        )
 
 
 if __name__ == "__main__":

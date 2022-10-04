@@ -18,6 +18,7 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
@@ -44,33 +45,37 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
+params.input_file = "NO_FILE1"
+params.output_file = "NO_FILE2"
+params.reference_file = "NO_FILE3"
+params.index_file = "NO_FILE4"
+
 params.output_pattern = "*"  // output file name pattern
 
 
 process cramToBam {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
     path input_file
+    path reference_file
+    path index_file
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "*.bam", emit: output_file
 
   script:
     // add and initialize variables here as needed
 
     """
-    mkdir -p output_dir
-
     main.py \
       -i ${input_file} \
-      -o output_dir
-
+      -r ${reference_file} \
+      -t ${params.cpus}
     """
 }
 
@@ -79,6 +84,8 @@ process cramToBam {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   cramToBam(
-    file(params.input_file)
+    file(params.input_file),
+    file(params.reference_file),
+    file(params.index_file)
   )
 }

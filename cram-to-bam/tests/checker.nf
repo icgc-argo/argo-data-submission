@@ -54,42 +54,84 @@ process file_smart_diff {
 
   input:
     path output_file
+    path reference_file
+    path index_file
     path expected_file
 
   output:
-    stdout()
+    stdout emit : status
 
   script:
     """
-    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
-    # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
-    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
-
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    diff \
+      <(samtools view -H ${output_file} | grep '^@RG') \
+      <(samtools view -H ${expected_file} | grep '^@RG') \
+      || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    diff \
+      <(samtools view ${output_file} | grep -v 'SA:' | awk -v OFS='\\t' '{print \$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8,\$9,\$10,\$11,\$15,\$14,\$12,\$13,\$16}') \
+      <(samtools view ${expected_file} -T ${reference_file} | grep -v 'SA:') \
+      || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
 
+process download_required_files{
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
+  output:
+    path "hs37d5.fa", emit: reference_file
+
+  script:
+    """
+    curl ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz -o hs37d5.fa.gz
+    gunzip --quiet hs37d5.fa.gz || true
+    diff <(echo '12a0bed94078e2d9e8c00da793bbc84e  hs37d5.fa') <(md5sum hs37d5.fa) \
+      && ( echo "DOWNLOAD OK" && exit 0 ) || ( echo "DOWNLOAD BAD" && exit 1 )
+    """
+}
+
+process cleanup{
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+
+  input:
+    path inputA
+    path inputB
+    val status
+
+  script:
+    """
+    dir_to_rm=\$(dirname \$(readlink -f ${inputA}))
+    rm -rf \$dir_to_rm/*
+
+    dir_to_rm=\$(dirname \$(readlink -f ${inputB}))
+    rm -rf \$dir_to_rm/*
+    """
+}
 workflow checker {
   take:
     input_file
-    expected_output
+    index_file
+    expected_file
 
   main:
-    cramToBam(
-      input_file
-    )
+  download_required_files()
+
+  cramToBam(
+    input_file,
+    download_required_files.out.reference_file,
+    index_file
+  )
 
     file_smart_diff(
       cramToBam.out.output_file,
-      expected_output
+      download_required_files.out.reference_file,
+      index_file,
+      expected_file
+    )
+
+    cleanup(
+      cramToBam.out.output_file,
+      download_required_files.out.reference_file,
+      file_smart_diff.out.status
     )
 }
 
@@ -97,6 +139,7 @@ workflow checker {
 workflow {
   checker(
     file(params.input_file),
-    file(params.expected_output)
+    file(params.index_file),
+    file(params.expected_file)
   )
 }
