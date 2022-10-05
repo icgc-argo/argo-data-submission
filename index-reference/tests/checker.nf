@@ -84,7 +84,7 @@ process file_smart_diff {
     val expected_file
 
   output:
-    stdout()
+    stdout emit : status
 
   script:
     """
@@ -93,6 +93,22 @@ process file_smart_diff {
     """
 }
 
+process cleanup{
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
+
+  input:
+    path inputA
+    path inputB
+    val status
+
+  script:
+  def additional_delete = inputB.name != 'NO_FILE' ? "rm -rf \$(dirname \$(readlink -f ${inputB}))" : ''
+  """
+  dir_to_rm=\$(dirname \$(readlink -f ${inputA}))
+  rm -rf \$dir_to_rm/*
+  $additional_delete
+  """
+}
 
 workflow checker {
   take:
@@ -118,6 +134,20 @@ workflow checker {
       indexReference.out.fai_file,
       expected_output
     )
+
+    if (input_file == 'hs37d5.fa'){
+      cleanup(
+      download_required_files.out.reference_file,
+      gunzip.out.decompressed_file,
+      file_smart_diff.out.status
+      )
+    } else {
+      cleanup(
+      download_required_files.out.reference_file,
+      file("NO_FILE"),
+      file_smart_diff.out.status
+      )
+    }
 }
 
 

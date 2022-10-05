@@ -1,9 +1,9 @@
 # Package index-reference
 
 
-Please update this with a brief introduction of the package.
+The following package generates indices from `.fasta`,`.fa`,`.fna`,`.fasta.gz`,`.fa.gz` or `.fna.gz`
 
-
+Note for `.fasta.gz`,`.fa.gz` or `.fna.gz` must be compressed by `gzip` or `bgzip`. Certain older files may use `RAZF` format [which has since been deprecated](https://github.com/samtools/samtools/issues/1387). This step will fail when encountering said formatting and it is recommended to `gunzip` the file and re-run on the output (note the `gunzip` step will throw warnings).
 ## Package development
 
 The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
@@ -13,12 +13,32 @@ versioning, updating, CI testing and releasing.
 
 ## Inputs
 
-Please list all input parameters
-
+If reference file is compressed
+```
+../main.nf \
+--reference_file hs37d5.fa.gz
+```
+Otherwise
+```
+nextflow \
+../main.nf \
+--reference_file hs37d5.fa
+```
 
 ## Outputs
 
-Please list all outputs
+See working directory.
+If reference file was compressed
+```
+hs37d5.fa.gz
+hs37d5.fa.gz.gzi
+hs37d5.fa.gz.fai
+```
+Otherwise
+```
+hs37d5.fa
+hs37d5.fa.fai
+```
 
 
 ## Usage
