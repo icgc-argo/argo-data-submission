@@ -1,6 +1,6 @@
 {
     "name": "argo-data-submission-wf",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "ARGO data submission workflow",
     "main": "main.nf",
     "deprecated": false,
@@ -21,13 +21,13 @@
     "devDependencies": [],
     "contributors": [
         {
-          "name": "Edmund Su",
-          "email": "edmund.su@oicr.on.ca"
+            "name": "Edmund Su",
+            "email": "edmund.su@oicr.on.ca"
         },
         {
-          "name": "Linda Xiang",
-          "email": "linda.xiang@oicr.on.ca"
-      }
+            "name": "Linda Xiang",
+            "email": "linda.xiang@oicr.on.ca"
+        }
     ],
     "license": "GNU Affero General Public License v3",
     "bugReport": "https://github.com/icgc-argo/argo-data-submission/issues",
