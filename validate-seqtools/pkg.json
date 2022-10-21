@@ -1,6 +1,6 @@
 {
     "name": "validate-seqtools",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "Using Seq-tools, validates molecular",
     "main": "main.nf",
     "deprecated": false,
