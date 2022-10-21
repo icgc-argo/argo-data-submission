@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 /*
-  Copyright (C) 2022,  icgc-argo
+  Copyright (C) 2021,  icgc-argo
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published by
@@ -17,18 +17,17 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   Authors:
-    Edmund Su
-    Linda Xiang
+    Junjun Zhang
 */
 
 /********************************************************************/
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.1'
+version = '0.1.0'  // package version
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-aspera'
+    'ghcr.io': 'ghcr.io/icgc-argo-workflows/dna-seq-processing-tools.cram2bam'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
@@ -45,48 +44,50 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.target_file=''
-params.EGAF=''
-params.ASCP_SCP_HOST=''
-params.ASCP_SCP_USER=''
-params.ASPERA_SCP_PASS=''
+params.input_cram = ""
+params.reference = ""
 
-process downloadAspera {
+include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf'
+
+process cram2bam {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
-  errorStrategy 'terminate'
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    val target_file
-    val EGAF
-    val dependency
+    path input_cram
+    path reference
+    path reference_idx
 
   output:  // output, make update as needed
-    path "${EGAF}/${regexed_file_name}", emit: output_file
+    path "*.bam", emit: output_bam
+    path "*.bai", emit: output_bai
 
-  script:
-    // add and initialize variables here as needed
-    regexed_file_name=target_file.replaceAll(/^.*\//,'')
-    """
-    mkdir ${EGAF}
-    export ASCP_SCP_HOST=${params.ASCP_SCP_HOST}
-    export ASCP_SCP_USER=${params.ASCP_SCP_USER}
-    export ASPERA_SCP_PASS=${params.ASPERA_SCP_PASS}
-    python3.6 /tools/main.py \\
-      -f ${target_file} \\
-      -o ${EGAF} \\
-      > download.log 2>&1
-    """
+  shell:
+    '''
+    filename=`basename "!{input_cram}"`
+    fname="${filename%.*}"
+    ext="${filename##*.}"
+
+    if [ "$ext" != "cram" ]; then
+      echo "Error: input CRAM file must have .cram extension."
+      exit 1
+    fi
+
+    samtools view -T !{reference} -b --threads !{params.cpus} -o ${fname}.bam !{input_cram}
+    samtools index ${fname}.bam
+    '''
 }
+
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
-  downloadAspera(
-    params.target_file,
-    params.EGAF,
-    true
+  cram2bam(
+    file(params.input_cram),
+    file(params.reference),
+    Channel.fromPath(getSecondaryFiles(params.reference,['{fai,gzi}']), checkIfExists: true).collect()
   )
 }

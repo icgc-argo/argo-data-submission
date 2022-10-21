@@ -1,0 +1,5 @@
+type	name	format	size	md5sum	path
+file	anon_chr1_completeA.cram	CRAM	132507	0d1776d44d8da87758d6b159aa8e6bc5	input/anon_chr1_completeA.cram
+file	anon_chr1_completeB.cram	CRAM	132507	0d1776d44d8da87758d6b159aa8e6bc5	input/anon_chr1_completeB.cram
+file	C0HVY.2_r1.fq.gz	FASTQ	2040	c4971f805930e9e31e1c45314c652d3c	input/C0HVY.2_r1.fq.gz
+file	C0HVY.2_r2.fq.gz	FASTQ	2042	f60026e682bf55f014c84d494112aa13	input/C0HVY.2_r2.fq.gz

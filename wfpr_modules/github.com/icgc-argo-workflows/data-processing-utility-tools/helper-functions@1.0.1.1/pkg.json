@@ -1,12 +1,14 @@
 {
-    "name": "payload-gen-seq-experiment",
-    "version": "0.7.0",
-    "description": "SONG payload generation for sequencing experiment",
+    "name": "helper-functions",
+    "version": "1.0.1.1",
+    "description": "A collection of helper functions",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
         "bioinformatics",
-        "metadata"
+        "utils",
+        "function",
+        "secondary file"
     ],
     "repository": {
         "type": "git",
@@ -26,10 +28,8 @@
     "devDependencies": [],
     "contributors": [
         {
-            "name": "Junjun Zhang"
-        },
-        {
-            "name": "Hillary Elrick"
+            "name": "Junjun Zhang",
+            "email": "junjun.ca@gmail.com"
         }
     ],
     "license": "GNU Affero General Public License v3",
