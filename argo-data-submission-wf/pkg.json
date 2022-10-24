@@ -12,7 +12,7 @@
         "url": "https://github.com/icgc-argo/argo-data-submission.git"
     },
     "dependencies": [
-        "github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.4",
+        "github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.5",
         "github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.4",
         "github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1",
         "github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.0",
