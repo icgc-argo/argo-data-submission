@@ -68,6 +68,7 @@ params.c4gh_secret_key="NO_FILE5"
 params.song_url = ""
 params.score_url = ""
 params.api_token=""
+params.convert_cram = false
 params.payloadGen = [:]
 params.upload = [:]
 params.validateSeq = [:]
@@ -121,29 +122,6 @@ upload_params = [
   *:(params.upload ?: [:])
 ]
 
-process hello_cram {
-  input:
-    path input_file
-  output:
-    path "*.bam", emit : output_file
-  
-  script:
-  """
-    fileName=\$(basename ${input_file} .cram)
-    echo ${input_file} > \${fileName}.bam
-  """
-}
-
-process hello_bam {
-  input:
-    path input_file
-  
-  script:
-  """
-    echo ${input_file}  >> tmp.txt
-  """
-}
-
 include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.5/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.4/main.nf' params(egaDownload_params)
@@ -162,6 +140,7 @@ workflow ArgoDataSubmissionWf {
     extra_info_tsv
     metadata_payload_json
     ref_genome_fa
+    convert_cram
   main:
 
     if (
@@ -170,6 +149,12 @@ workflow ArgoDataSubmissionWf {
       file_info_tsv.startsWith("NO_FILE")
       ){
       exit 1,"Not enough files to perform pipeline"
+    }
+    // Check if 
+    if (convert_cram && ref_genome_fa.startsWith("NO_FILE")){
+        exit 1,"cram2bam function specified but no reference genome provided. Please include flag '--ref_genome_fa'"
+    } else if (!convert_cram && !ref_genome_fa.startsWith("NO_FILE")){
+      exit 1,"Unnecessary usage of '--ref_genome_fa'. Please include '--cram2bam' only if CRAM files are being submitted"
     }
 
     // download from ega after payload is generated and valid according to the given schema
@@ -186,7 +171,7 @@ workflow ArgoDataSubmissionWf {
     
     // Split files into CRAM and nonCRAM files accordingly
     cram_sequence_files=sequence_files.filter(row -> row =~ /cram$/)
-    not_cram_sequence_files=sequence_files.filter(row -> row =~ /bam$|gz$|bz2/)
+    not_cram_sequence_files=sequence_files.filter(row -> row =~ /bam$|gz$|bz2$/)
 
     // If reference genome is not provided...
     if (ref_genome_fa.startsWith("NO_FILE")){
@@ -277,5 +262,6 @@ workflow {
     params.extra_info_tsv,
     params.metadata_payload_json,
     params.ref_genome_fa,
+    params.convert_cram
   )
 }
