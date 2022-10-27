@@ -232,7 +232,7 @@ workflow ArgoDataSubmissionWf {
       // If reference genome is provided...
       cram2bam(
       cram_sequence_files,
-      ref_genome_fa,
+      file(ref_genome_fa),
       Channel.fromPath(getSecondaryFiles(ref_genome_fa,['.gz.fai','.gz.gzi']))
       )
 
