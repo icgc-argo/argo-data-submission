@@ -68,7 +68,6 @@ params.c4gh_secret_key="NO_FILE5"
 params.song_url = ""
 params.score_url = ""
 params.api_token=""
-params.convert_cram = false
 params.payloadGen = [:]
 params.upload = [:]
 params.validateSeq = [:]
@@ -131,6 +130,39 @@ include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
 
 // please update workflow code as needed
+
+process checkCramReference{
+  input:  // input, make update as needed
+    path file_info_tsv
+    path ref_genome_fa
+  output:
+    stdout emit: check_status
+
+  script:
+  """
+    BAM_COUNT=\$(cat ${file_info_tsv} | grep -v 'CRAM' | wc -l)
+    CRAM_COUNT=\$(cat ${file_info_tsv} | grep 'CRAM' | wc -l)
+
+    if [ \$CRAM_COUNT -gt 0 ];then
+      if [ -e ${ref_genome_fa} ];then
+        exit 0
+      else
+        echo "Missing reference genome needed for cram2bam conversion. Re-run command with '--ref_genome_fa' with valid 'fasta' or 'fasta.gz'"
+        exit 1
+      fi
+    elif [ \$BAM_COUNT -gt 0 ] && [ \$CRAM_COUNT -eq 0 ];then
+      if [ -e ${ref_genome_fa} ];then
+        echo "No CRAM files detected. Unnecessary usage of '--ref_genome_fa'. Re-run command without --ref_genome_fa"
+        exit 1
+      else
+        exit 0
+      fi
+    else
+      exit 0
+    fi
+  """
+}
+
 workflow ArgoDataSubmissionWf {
   take:
     study_id
@@ -140,7 +172,6 @@ workflow ArgoDataSubmissionWf {
     extra_info_tsv
     metadata_payload_json
     ref_genome_fa
-    convert_cram
   main:
 
     if (
@@ -150,19 +181,19 @@ workflow ArgoDataSubmissionWf {
       ){
       exit 1,"Not enough files to perform pipeline"
     }
-    // Check if 
-    if (convert_cram && ref_genome_fa.startsWith("NO_FILE")){
-        exit 1,"cram2bam function specified but no reference genome provided. Please include flag '--ref_genome_fa'"
-    } else if (!convert_cram && !ref_genome_fa.startsWith("NO_FILE")){
-      exit 1,"Unnecessary usage of '--ref_genome_fa'. Please include '--cram2bam' only if CRAM files are being submitted"
-    }
+
+    checkCramReference(
+      file(file_info_tsv),
+      file(ref_genome_fa)
+      )
+
 
     // download from ega after payload is generated and valid according to the given schema
     if (params.download_mode!='local'){
       egaWf(
         params.download_mode,
         file_info_tsv,
-        pGenExp.out.count()
+        checkCramReference.out.check_status
       )
       sequence_files=egaWf.out.sequence_files
     } else {
@@ -174,7 +205,7 @@ workflow ArgoDataSubmissionWf {
     not_cram_sequence_files=sequence_files.filter(row -> row =~ /bam$|gz$|bz2$/)
 
     // If reference genome is not provided...
-    if (ref_genome_fa.startsWith("NO_FILE")){
+    if (checkCramReference.out.check_status && ref_genome_fa.startsWith("NO_FILE")){
       // Generate metadata payload per normal
       pGenExp(
         file(experiment_info_tsv),
@@ -197,13 +228,14 @@ workflow ArgoDataSubmissionWf {
         valSeq.out.validated_payload,
         sequence_files.collect()
       )
-    } else {
+    } else if (checkCramReference.out.check_status && !ref_genome_fa.startsWith("NO_FILE")){
       // If reference genome is provided...
       cram2bam(
       cram_sequence_files,
       ref_genome_fa,
       Channel.fromPath(getSecondaryFiles(ref_genome_fa,['.gz.fai','.gz.gzi']))
       )
+
       // Generate metadata payload while recalulating md5sum and size for cram2bam files and move cram info
       pGenExp(
       file(experiment_info_tsv),
@@ -261,7 +293,6 @@ workflow {
     params.file_info_tsv,
     params.extra_info_tsv,
     params.metadata_payload_json,
-    params.ref_genome_fa,
-    params.convert_cram
+    params.ref_genome_fa
   )
 }
