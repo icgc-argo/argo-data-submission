@@ -233,7 +233,7 @@ workflow ArgoDataSubmissionWf {
       cram2bam(
       cram_sequence_files,
       file(ref_genome_fa),
-      Channel.fromPath(getSecondaryFiles(ref_genome_fa,['.gz.fai','.gz.gzi']))
+      Channel.fromPath(getSecondaryFiles(ref_genome_fa,['{fai,gzi}']),checkIfExists:true).collect()
       )
 
       // Generate metadata payload while recalulating md5sum and size for cram2bam files and move cram info
