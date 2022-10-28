@@ -42,35 +42,41 @@ params.cpus = 1
 params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
-
-// tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
-
+// payloadGenSeqExperiment
+params.song_url="https://submission-song.rdpc-qa.cancercollaboratory.org/"
+params.clinical_url="https://clinical.qa.argo.cancercollaboratory.org"
+params.api_token=""
+params.experiment_info_tsv="NO_FILE1"
+params.skip_sanity_check="NO_FILE2"
 
 process sanityCheck {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
-
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
+  
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    path experiment_info_tsv
+    val api_token
+    val song_url
+    val clinical_url
+    val skip_sanity_check
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
-
+    path "updated*tsv", emit: updated_experiment_info_tsv
+ 
+  
   script:
     // add and initialize variables here as needed
-
+    args_skip_sanity = !skip_sanity_check.startsWith("NO_FILE") ? "--force" : ""
     """
-    mkdir -p output_dir
-
     main.py \
-      -i ${input_file} \
-      -o output_dir
-
+      -x ${experiment_info_tsv} \
+      -t ${api_token} \
+      -s ${song_url} \
+      -c ${clinical_url} \
+      ${args_skip_sanity}
     """
 }
 
@@ -79,6 +85,10 @@ process sanityCheck {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   sanityCheck(
-    file(params.input_file)
+    file(params.experiment_info_tsv),
+    params.api_token,
+    params.song_url,
+    params.clinical_url,
+    params.skip_sanity_check
   )
 }

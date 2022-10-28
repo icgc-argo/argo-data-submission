@@ -1,24 +1,50 @@
-# Package sanity-check
+# Package differentiate-json
 
-
-Please update this with a brief introduction of the package.
-
-
-## Package development
-
-The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
-the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
-versioning, updating, CI testing and releasing.
-
+Updates provided `file_info_tsv` with additional fields from Clinical. This step is to avoid mismatching info for the same field between Clinical.SONG and Submission.SONG.
 
 ## Inputs
 
-Please list all input parameters
-
+`File_info_tsv` - See argo-data-submission-wf
+'api_token' - Valid API token retrievable from Platform 
+'song_url' - Valid Song URL
+'clinical_url' - Valid Clinical URL
 
 ## Outputs
+`updated_file_info.tsv`
+#### Successful instance
 
-Please list all outputs
+An `updated_file_info.tsv` is generated
+
+#### Example of Errors
+
+Unregistered Project
+```
+submitter_donor_id:'TEST_SUBMITTER_DONOR_ID_jpupbblgfa' was not found in project:'LUNCHTIME'. Verify sample has been registered.
+```
+Unregistered donor
+```
+submitter_donor_id:'BATMAN' was not found in project:'TEST-PR'. Verify sample has been registered.
+```
+Project registered but not in SONG
+```
+Program TEST-JP does not exist. Please verify program code is correct. Otherwise contact DCC-admin for help to troubleshoot.
+```
+Sample with existing analysis
+```
+Sample 'TEST_SUBMITTER_SAMPLE_ID_ujolwwdsmgN1'/'SA623974' has an existing published analysis '15e3ffd2-16a2-465d-a3ff-d216a2765d4f' for experiment_strategy 'WGS.'
+```
+Mismatched valid IDs
+```
+ID Mismatch detected. Specimen_id:'TEST_SUBMITTER_SPECIMEN_ID_ujolwwdsmgN1'/'SP223585' was not found within Donor:'DN108'/'DO263239' 's specimens
+```
+
+#### Test run
+`nextflow run checker.nf -params-file local_good_copy.json --api_token ${token}`
+
+#### IRL run
+```
+nextflow run main.nf -params-file local_good_copy.json --api_token ${token}
+```
 
 
 ## Usage
@@ -30,7 +56,7 @@ Please replace the params file with a real one (with all required parameters and
 params file(s) can be found in the `tests` folder.
 
 ```
-nextflow run icgc-argo/argo-data-submission/sanity-check/main.nf -r sanity-check.v0.1.0 -params-file <your-params-json-file>
+nextflow run icgc-argo/argo-data-submission/differentiate-json/main.nf -r differentiate-json.v0.1.0 -params-file <your-params-json-file>
 ```
 
 ### Import the package as a dependency
@@ -38,6 +64,6 @@ nextflow run icgc-argo/argo-data-submission/sanity-check/main.nf -r sanity-check
 To import this package into another package as a dependency, please follow these steps at the
 importing package side:
 
-1. add this package's URI `github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0` in the `dependencies` list of the `pkg.json` file
+1. add this package's URI `github.com/icgc-argo/argo-data-submission/differentiate-json@0.1.0` in the `dependencies` list of the `pkg.json` file
 2. run `wfpm install` to install the dependency
-3. add the `include` statement in the main Nextflow script to import the dependent package from this path: `./wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0/main.nf`
+3. add the `include` statement in the main Nextflow script to import the dependent package from this path: `./wfpr_modules/github.com/icgc-argo/argo-data-submission/differentiate-json@0.1.0/main.nf`

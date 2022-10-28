@@ -43,8 +43,12 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.expected_output = ""
+params.song_url="https://submission-song.rdpc-qa.cancercollaboratory.org/"
+params.clinical_url="https://clinical.qa.argo.cancercollaboratory.org"
+params.api_token=""
+params.experiment_info_tsv="NO_FILE1"
+params.skip_sanity_check="NO_FILE2"
+params.expected_output="NO_FILE3"
 
 include { sanityCheck } from '../main'
 
@@ -65,13 +69,7 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
-
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
-
-    diff normalized_output normalized_expected \
+    diff ${output_file} ${output_file} \
       && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -79,24 +77,36 @@ process file_smart_diff {
 
 workflow checker {
   take:
-    input_file
+    experiment_info_tsv
+    api_token
+    song_url
+    clinical_url
+    skip_sanity_check
     expected_output
 
   main:
-    sanityCheck(
-      input_file
-    )
+  sanityCheck(
+    file(experiment_info_tsv),
+    api_token,
+    song_url,
+    clinical_url,
+    skip_sanity_check
+  )
 
     file_smart_diff(
-      sanityCheck.out.output_file,
-      expected_output
+      sanityCheck.out.updated_experiment_info_tsv,
+      file(expected_output)
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.experiment_info_tsv,
+    params.api_token,
+    params.song_url,
+    params.clinical_url,
+    params.skip_sanity_check,
+    params.expected_output
   )
 }
