@@ -19,7 +19,7 @@ An `updated_file_info.tsv` is generated
 
 Unregistered Project
 ```
-submitter_donor_id:'TEST_SUBMITTER_DONOR_ID_jpupbblgfa' was not found in project:'LUNCHTIME'. Verify sample has been registered.
+Project LUNCHTIME does not exist or no samples have been registered
 ```
 Unregistered donor
 ```

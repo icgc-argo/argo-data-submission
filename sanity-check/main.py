@@ -96,10 +96,23 @@ def load_tsv(experiment_info_tsv):
 def get_clinical(metadata,clinical_url,api_token):
     
     return_metadata={}
+
+    ### Check program exists first
+
+    headers={"accept":"*/*","Authorization":"Bearer %s" % (api_token)}
+    endpoint="%s/clinical/program/%s/donors" % (clinical_url,metadata.get('program_id'))
+    response=requests.get(endpoint,headers=headers)
+
+    if response.status_code==200:
+        if len(response.text)==0:
+            sys.exit("Project %s does not exist or no samples have been registered" % (metadata.get('program_id')))
+    else:
+        sys.exit("Unable to fetch. Status code : %s" % (str(response.status_code)))
     
-    headers={"accept":"text/plain","Authorization":"Bearer %s" % (api_token)}
     
     ###Populate ARGO IDs
+    headers={"accept":"text/plain","Authorization":"Bearer %s" % (api_token)}
+
     for field in ['donor','sample','specimen']:
         endpoint="%s/clinical/%ss/id?programId=%s&submitterId=%s" % (clinical_url,field,metadata.get('program_id'),metadata.get("submitter_"+field+"_id"))
 
