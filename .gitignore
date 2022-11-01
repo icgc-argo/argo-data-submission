@@ -72,3 +72,7 @@ wfpr_modules/github.com/*/*/*/tests
 # singularity images
 **/*.img
 **/*.sif
+argo-data-submission-wf/tests/hs37d5.fa.fai
+argo-data-submission-wf/tests/hs37d5.fa.gz
+argo-data-submission-wf/tests/hs37d5.fa.gz.fai
+argo-data-submission-wf/tests/hs37d5.fa.gz.gzi

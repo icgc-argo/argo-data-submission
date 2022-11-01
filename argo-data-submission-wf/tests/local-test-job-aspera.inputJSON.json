@@ -3,8 +3,8 @@
     "metadata_payload_json":"input/payload.aspera.json",
     "download_mode" : "aspera",
     "study_id":"TEST-GR",
-    "song_url": "https://song.rdpc-qa.cancercollaboratory.org",
-    "score_url": "https://score.rdpc-qa.cancercollaboratory.org",
+    "song_url": "https://submission-song.rdpc-qa.cancercollaboratory.org",
+    "score_url": "https://submission-score.rdpc-qa.cancercollaboratory.org",
     "payloadGen": {
       "cpus": 2,
       "mem": 2
