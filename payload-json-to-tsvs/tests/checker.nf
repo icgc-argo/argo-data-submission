@@ -53,8 +53,12 @@ process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
   input:
-    path output_file
-    path expected_file
+      path experiment_tsv
+      path file_tsv
+      path read_group_tsv
+      path expected_experiment_tsv
+      path expected_file_tsv
+      path expected_read_group_tsv
 
   output:
     stdout()
@@ -65,38 +69,51 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file[0]} \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
+    diff ${experiment_tsv} ${expected_experiment_tsv} \
+      && (echo "Experiment TSVs match!") || ( echo "Experiment output file mismatch." && exit 1 )
 
-    ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
-      | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_expected
+    diff ${file_tsv} ${expected_file_tsv} \
+      && (echo "File TSVs match!") || ( echo "File output file mismatch." && exit 1 )
 
-    diff normalized_output normalized_expected \
-      && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    diff ${read_group_tsv} ${read_group_tsv} \
+      && (echo "Read group TSVs match!") || ( echo "Read group output file mismatch." && exit 1 )
+
+    exit 0
     """
 }
 
 
 workflow checker {
   take:
-    input_file
-    expected_output
+    json_file
+    data_directory
+    expected_experiment_tsv
+    expected_file_tsv
+    expected_read_group_tsv
 
   main:
     payloadJsonToTsvs(
-      input_file
+      file(json_file),
+      file(data_directory)
     )
 
     file_smart_diff(
-      payloadJsonToTsvs.out.output_file,
-      expected_output
+      payloadJsonToTsvs.out.experiment_tsv,
+      payloadJsonToTsvs.out.file_tsv,
+      payloadJsonToTsvs.out.read_group_tsv,
+      file(expected_experiment_tsv),
+      file(expected_file_tsv),
+      file(expected_read_group_tsv),
     )
 }
 
 
 workflow {
   checker(
-    file(params.input_file),
-    file(params.expected_output)
+    params.json_file,
+    params.data_directory,
+    params.expected_experiment_tsv,
+    params.expected_file_tsv,
+    params.expected_read_group_tsv
   )
 }

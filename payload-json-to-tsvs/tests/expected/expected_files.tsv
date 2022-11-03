@@ -1,0 +1,2 @@
+name	size	md5sum	ega_file_id	ega_dataset_id	ega_experiment_id	ega_sample_id	ega_study_id	ega_run_id	ega_policy_id	ega_analysis_id	ega_submission_id	ega_dac_id	path	type	format
+anon_chr1_complete.bam	258104	601d12fbfea8d9b8b2f33f35a1b1bd53											input/anon_chr1_complete.bam	file	BAM

@@ -1,27 +1,33 @@
-# Package argo-data-submission-wf
+# Package download-aspera
 
-
-Please update this with a brief introduction of the package.
-
-
-## Package development
-
-The initial version of this package was created by the WorkFlow Package Manager CLI tool, please refer to
-the [documentation](https://wfpm.readthedocs.io) for details on the development procedure including
-versioning, updating, CI testing and releasing.
+Wrapper for convert ICGC ARGO Metadata JSON Payloads into TSVs (Experiment,file and read_groups)
 
 
 ## Inputs
 
-Please list all input parameters
+A JSON metadata payload and data directory
 
 
 ## Outputs
 
-Please list all outputs
+`Experiment.tsv` according to [dictionary](https://github.com/icgc-argo/argo-data-submission/blob/main/metadata_dictionary/experiment_dict.tsv)
+
+`File.tsv` according to [dictionary](https://github.com/icgc-argo/argo-data-submission/blob/main/metadata_dictionary/files_dict.tsv)
+
+`Read_group.tsv` according to [dictionary](https://github.com/icgc-argo/argo-data-submission/blob/main/metadata_dictionary/read_groups_dict.tsv)
 
 
 ## Usage
+
+#### Test run
+```
+nextflow run checker.nf -params-file test.json
+```
+
+#### IRL run
+```
+nextflow run ../main.nf -params-file test.json
+```
 
 ### Run the package directly
 
@@ -30,7 +36,7 @@ Please replace the params file with a real one (with all required parameters and
 params file(s) can be found in the `tests` folder.
 
 ```
-nextflow run icgc-argo/argo-data-submission/argo-data-submission-wf/main.nf -r argo-data-submission-wf.v0.1.0 -params-file <your-params-json-file>
+nextflow run icgc-argo/argo-data-submission/download-aspera/main.nf -r download-aspera.v0.1.0 -params-file <your-params-json-file>
 ```
 
 ### Import the package as a dependency
@@ -38,6 +44,6 @@ nextflow run icgc-argo/argo-data-submission/argo-data-submission-wf/main.nf -r a
 To import this package into another package as a dependency, please follow these steps at the
 importing package side:
 
-1. add this package's URI `github.com/icgc-argo/argo-data-submission/argo-data-submission-wf@0.1.0` in the `dependencies` list of the `pkg.json` file
+1. add this package's URI `github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0` in the `dependencies` list of the `pkg.json` file
 2. run `wfpm install` to install the dependency
-3. add the `include` statement in the main Nextflow script to import the dependent package from this path: `./wfpr_modules/github.com/icgc-argo/argo-data-submission/argo-data-submission-wf@0.1.0/main.nf`
+3. add the `include` statement in the main Nextflow script to import the dependent package from this path: `./wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.0/main.nf`

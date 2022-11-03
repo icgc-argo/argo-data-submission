@@ -1,0 +1,7 @@
+{
+    "json_file":"input/example.json",
+    "data_directory":"input",
+    "expected_experiment_tsv":"expected/expected_experiment.tsv",
+    "expected_file_tsv":"expected/expected_files.tsv",
+    "expected_read_group_tsv":"expected/expected_read_groups.tsv"
+}
