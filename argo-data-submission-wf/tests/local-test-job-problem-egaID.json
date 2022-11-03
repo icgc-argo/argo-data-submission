@@ -4,8 +4,8 @@
     "read_group_info_tsv":"input/read_group_aspera.tsv",
     "download_mode" : "aspera",
     "study_id":"TEST-PR",
-    "song_url": "https://song.rdpc-qa.cancercollaboratory.org",
-    "score_url": "https://score.rdpc-qa.cancercollaboratory.org",
+    "song_url": "https://submission-song.rdpc-qa.cancercollaboratory.org",
+    "score_url": "https://submission-score.rdpc-qa.cancercollaboratory.org",
     "payloadGen": {
       "cpus": 2,
       "mem": 2
