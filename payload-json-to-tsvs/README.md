@@ -36,7 +36,7 @@ Please replace the params file with a real one (with all required parameters and
 params file(s) can be found in the `tests` folder.
 
 ```
-nextflow run icgc-argo/argo-data-submission/download-aspera/main.nf -r download-aspera.v0.1.0 -params-file <your-params-json-file>
+nextflow run icgc-argo/argo-data-submission/payload-json-to-tsvs/main.nf -r payload-json-to-tsvs.v0.1.0 -params-file <your-params-json-file>
 ```
 
 ### Import the package as a dependency

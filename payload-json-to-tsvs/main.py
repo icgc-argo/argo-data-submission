@@ -50,9 +50,9 @@ def main():
         sys.exit('Error: Specified data directory %s does not exist or is not accessible!' % args.data_directory)
 
     metadata=read_json(args.json_file)
-    make_experiment_tsv(metadata,args.data_directory)
+    make_experiment_tsv(metadata)
     make_file_tsv(metadata,args.data_directory)
-    make_read_group_tsv(metadata,args.data_directory)
+    make_read_group_tsv(metadata)
 
 def read_json(json_file):
     with open(json_file, 'r') as file:
@@ -60,7 +60,7 @@ def read_json(json_file):
     
     return metadata
 
-def make_experiment_tsv(metadata,data_directory):
+def make_experiment_tsv(metadata):
     if metadata.get("samples") and metadata.get("experiment"):
         return_metadata={}
         return_metadata['type']='sequencing_experiment'
@@ -146,7 +146,7 @@ def make_file_tsv(metadata,data_directory):
         sys.exit("Error payload does not contain files.")
 
 
-def make_read_group_tsv(metadata,data_directory):
+def make_read_group_tsv(metadata):
 
     fields=['submitter_read_group_id', 'read_group_id_in_bam', 'submitter_sequencing_experiment_id', 'platform_unit',
     'is_paired_end', 'file_r1', 'file_r2', 'read_length_r1', 'read_length_r2', 'insert_size', 'sample_barcode', 'library_name'
