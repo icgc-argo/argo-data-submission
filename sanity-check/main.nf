@@ -47,7 +47,7 @@ params.song_url="https://submission-song.rdpc-qa.cancercollaboratory.org/"
 params.clinical_url="https://clinical.qa.argo.cancercollaboratory.org"
 params.api_token=""
 params.experiment_info_tsv="NO_FILE1"
-params.skip_sanity_check="NO_FILE2"
+params.skip_duplicate_check=false
 
 process sanityCheck {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -61,7 +61,7 @@ process sanityCheck {
     val api_token
     val song_url
     val clinical_url
-    val skip_sanity_check
+    val skip_duplicate_check
 
   output:  // output, make update as needed
     path "updated*tsv", emit: updated_experiment_info_tsv
@@ -69,14 +69,14 @@ process sanityCheck {
   
   script:
     // add and initialize variables here as needed
-    args_skip_sanity = !skip_sanity_check.startsWith("NO_FILE") ? "--force" : ""
+    args_skip_duplicate_check = skip_duplicate_check==true ? "--force" : ""
     """
     main.py \
       -x ${experiment_info_tsv} \
       -t ${api_token} \
       -s ${song_url} \
       -c ${clinical_url} \
-      ${args_skip_sanity}
+      ${args_skip_duplicate_check}
     """
 }
 
@@ -89,6 +89,6 @@ workflow {
     params.api_token,
     params.song_url,
     params.clinical_url,
-    params.skip_sanity_check
+    params.skip_duplicate_check
   )
 }

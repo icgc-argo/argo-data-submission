@@ -42,12 +42,12 @@ def main():
     parser.add_argument('-t', '--api_token', dest='api_token', type=str,
                         help='Platform UUID token', required=True)
     parser.add_argument('-c', '--clinical_url', dest='clinical_url', type=str,
-                        help='Clinical SONG API interaction URL', required=True)
+                        help='Clinical API interaction URL', required=True)
     parser.add_argument('-s', '--submission_song_url', dest='submission_song_url',type=str,
                         help='Submission SONG API interaction URL', required=True)
     parser.add_argument('-x', '--experiment_info_tsv', dest='experiment_info_tsv', type=str,required=True,
-                        help='TSV contain experiment info and submitter IDs')
-    parser.add_argument('-f', '--force', action='store_true',help='JSON file containing metadata payload')
+                        help='TSV containing experiment info and submitter IDs')
+    parser.add_argument('-f', '--force', action='store_true',help='Skip step checking for sample + experiment duplicates')
     args = parser.parse_args()
 
     if args.experiment_info_tsv:
@@ -63,11 +63,11 @@ def main():
             metadata,
             clinical_metadata
         )
-        if not args.force:
-            check_study_exists(
+        check_study_exists(
                 final_metadata,
                 args.submission_song_url
-            )
+        )
+        if not args.force:
             check_analysis_exists(
                 final_metadata,
                 args.submission_song_url
@@ -165,7 +165,7 @@ def check_study_exists(metadata,submission_song_url):
     response=requests.get(endpoint,headers=headers)
     
     if response.status_code==404:
-        sys.exit("Program %s does not exist. Please verify program code is correct. Otherwise contact DCC-admin for help to troubleshoot." % (metadata.get('program_id')))
+        sys.exit("Program %s does not exist in SONG. Please verify program code is correct. Otherwise contact DCC-admin for help to troubleshoot." % (metadata.get('program_id')))
     elif response.status_code!=200:
         sys.exit("Unable to fetch. Status code : %s" % (str(response.status_code)))
     else:
@@ -187,7 +187,11 @@ def check_analysis_exists(metadata,submission_song_url):
         ### Handles instances where sample has existing analyses
             for analysis in response.json():
                 ### If analysis is suppressed; we ignore
-                if analysis["analysisState"]=="PUBLISHED" and analysis["experiment"]["experimental_strategy"]==metadata.get('experimental_strategy'):
+                if \
+                analysis["analysisState"]=="PUBLISHED" and \
+                analysis["experiment"]["experimental_strategy"]==metadata.get('experimental_strategy') and \
+                analysis['analysisType']['name']=="sequencing_experiment"\
+                :
                     sys.exit(
                         "Sample '%s'/'%s' has an existing published analysis '%s' for experiment_strategy '%s.'"
                         % \

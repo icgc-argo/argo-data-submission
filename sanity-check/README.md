@@ -1,19 +1,19 @@
-# Package differentiate-json
+# Package Sanity-check
 
-Updates provided `file_info_tsv` with additional fields from Clinical. This step is to avoid mismatching info for the same field between Clinical.SONG and Submission.SONG.
+Updates provided `experiment_info_tsv` with additional fields from Clinical. This step is to avoid mismatching info for the same field between Clinical Database and Submission SONG Database.
 
 ## Inputs
 
-`File_info_tsv` - See argo-data-submission-wf
+`experiment_info_tsv` - See argo-data-submission-wf
 'api_token' - Valid API token retrievable from Platform 
 'song_url' - Valid Song URL
 'clinical_url' - Valid Clinical URL
 
 ## Outputs
-`updated_file_info.tsv`
+`updated_experiment_info.tsv`
 #### Successful instance
 
-An `updated_file_info.tsv` is generated
+An `updated_experiment_info.tsv` is generated
 
 #### Example of Errors
 
@@ -56,7 +56,7 @@ Please replace the params file with a real one (with all required parameters and
 params file(s) can be found in the `tests` folder.
 
 ```
-nextflow run icgc-argo/argo-data-submission/differentiate-json/main.nf -r differentiate-json.v0.1.0 -params-file <your-params-json-file>
+nextflow run icgc-argo/argo-data-submission/sanity-check/main.nf -r sanity-check.v0.1.0 -params-file <your-params-json-file>
 ```
 
 ### Import the package as a dependency
@@ -64,6 +64,6 @@ nextflow run icgc-argo/argo-data-submission/differentiate-json/main.nf -r differ
 To import this package into another package as a dependency, please follow these steps at the
 importing package side:
 
-1. add this package's URI `github.com/icgc-argo/argo-data-submission/differentiate-json@0.1.0` in the `dependencies` list of the `pkg.json` file
+1. add this package's URI `github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0` in the `dependencies` list of the `pkg.json` file
 2. run `wfpm install` to install the dependency
-3. add the `include` statement in the main Nextflow script to import the dependent package from this path: `./wfpr_modules/github.com/icgc-argo/argo-data-submission/differentiate-json@0.1.0/main.nf`
+3. add the `include` statement in the main Nextflow script to import the dependent package from this path: `./wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0/main.nf`
