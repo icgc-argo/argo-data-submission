@@ -1,0 +1,35 @@
+{
+    "name": "payload-json-to-tsvs",
+    "version": "0.1.0",
+    "description": "Converts JSON payload to 3 TSVs : Experiment,Files,Read groups",
+    "main": "main.nf",
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo/argo-data-submission.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "ghcr.io",
+                "type": "docker",
+                "org": "icgc-argo",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [],
+    "contributors": [
+        {
+            "name": "Edmund Su",
+            "email": "esu@oicr.on.ca"
+        }
+    ],
+    "license": "GNU Affero General Public License v3",
+    "bugReport": "https://github.com/icgc-argo/argo-data-submission/issues",
+    "homepage": "https://github.com/icgc-argo/argo-data-submission#readme"
+}
