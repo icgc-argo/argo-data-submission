@@ -1,0 +1,5 @@
+name	size	md5sum	ega_file_id	ega_dataset_id	ega_experiment_id	ega_sample_id	ega_study_id	ega_run_id	ega_policy_id	ega_analysis_id	ega_submission_id	ega_dac_id	path	type	format
+anon_chr1_completeA.bam	269442	968711f781f217dfb1de630e520ccacb											input/anon_chr1_completeA.bam	file	BAM
+anon_chr1_completeB.bam	269442	cb47fb5bc74698bcacb5cd2cd6d9a131											input/anon_chr1_completeB.bam	file	BAM
+C0HVY.2_r1.fq.gz	2040	c4971f805930e9e31e1c45314c652d3c											input/C0HVY.2_r1.fq.gz	file	FASTQ
+C0HVY.2_r2.fq.gz	2042	f60026e682bf55f014c84d494112aa13											input/C0HVY.2_r2.fq.gz	file	FASTQ

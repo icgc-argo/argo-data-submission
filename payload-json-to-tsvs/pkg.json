@@ -1,6 +1,6 @@
 {
     "name": "payload-json-to-tsvs",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Converts JSON payload to 3 TSVs : Experiment,Files,Read groups",
     "main": "main.nf",
     "deprecated": false,

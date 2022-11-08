@@ -137,11 +137,8 @@ def make_file_tsv(metadata,data_directory):
                     for field in ega_fields:
                         return_metadata[field]=file['info']['ega'].get(field) if file['info']['ega'].get(field) else None
 
-                print(data_directory)
-                print(return_metadata['name'])
                 return_metadata['path']=data_directory+"/"+return_metadata['name']
-
-            writer.writerow(return_metadata)
+                writer.writerow(return_metadata)
     else:
         sys.exit("Error payload does not contain files.")
 
