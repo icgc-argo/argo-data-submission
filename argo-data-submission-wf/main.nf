@@ -41,14 +41,24 @@ params.cleanup = true
 params.study_id=""
 params.download_mode="local"
 
+// sanityChecks
+params.song_url="https://submission-song.rdpc-qa.cancercollaboratory.org"
+params.clinical_url="https://clinical.qa.argo.cancercollaboratory.org"
+params.api_token=""
+
+// payloadJsonToTsvs
+params.data_directory="NO_FILE1"
+params.skip_duplicate_check=false
+
 // payloadGenSeqExperiment
 params.schema_url="https://submission-song.rdpc.cancercollaboratory.org/schemas/sequencing_experiment"
-params.experiment_info_tsv="NO_FILE1"
-params.read_group_info_tsv="NO_FILE2"
-params.file_info_tsv="NO_FILE3"
-params.extra_info_tsv="NO_FILE4"
+params.experiment_info_tsv="NO_FILE2"
+params.read_group_info_tsv="NO_FILE3"
+params.file_info_tsv="NO_FILE4"
+params.extra_info_tsv="NO_FILE5"
 params.metadata_payload_json="NO_FILE6"
 params.ref_genome_fa="NO_FILE7"
+
 //validate seq-tools
 params.skip_md5sum_check = false
 
@@ -65,9 +75,7 @@ params.aspera_scp_pass=""
 params.c4gh_pass_phrase=""
 params.c4gh_secret_key="NO_FILE5"
 
-params.song_url = ""
 params.score_url = ""
-params.api_token=""
 params.payloadGen = [:]
 params.upload = [:]
 params.validateSeq = [:]
@@ -121,6 +129,17 @@ upload_params = [
   *:(params.upload ?: [:])
 ]
 
+sanityCheck_params = [
+  'cpus': params.cpus,
+  'mem': params.mem,
+]
+
+payloadJsonToTsvs_params = [
+  'cpus': params.cpus,
+  'mem': params.mem,
+]
+
+
 include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.5/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.4/main.nf' params(egaDownload_params)
@@ -128,6 +147,8 @@ include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/ic
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0/main.nf' params(cram2bam_params)
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
+include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0/main.nf' params(sanityCheck_params)
+include { payloadJsonToTsvs } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.1/main.nf' params(payloadJsonToTsvs_params)
 
 // please update workflow code as needed
 
@@ -135,8 +156,10 @@ process checkCramReference{
   input:  // input, make update as needed
     path file_info_tsv
     path ref_genome_fa
+    path experiment_info_tsv
   output:
     stdout emit: check_status
+    path ref_genome_fa, emit : ref_genome_fa , optional: true
 
   script:
   """
@@ -166,38 +189,103 @@ process checkCramReference{
 workflow ArgoDataSubmissionWf {
   take:
     study_id
-    experiment_info_tsv
-    read_group_info_tsv
-    file_info_tsv
+    og_experiment_info_tsv
+    og_read_group_info_tsv
+    og_file_info_tsv
     extra_info_tsv
     metadata_payload_json
     ref_genome_fa
+    data_directory
+    api_token
+    song_url
+    clinical_url
   main:
 
     if (
-      (experiment_info_tsv.startsWith("NO_FILE") && read_group_info_tsv.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE")) ||
-      (metadata_payload_json.startsWith("NO_FILE") && file_info_tsv.startsWith("NO_FILE")) ||
-      file_info_tsv.startsWith("NO_FILE")
-      ){
+      og_experiment_info_tsv.startsWith("NO_FILE") && \
+      og_read_group_info_tsv.startsWith("NO_FILE") && \
+      og_file_info_tsv.startsWith("NO_FILE") && \
+      metadata_payload_json.startsWith("NO_FILE") && \
+      data_directory.startsWith("NO_FILE")
+    ){
       exit 1,"Not enough files to perform pipeline"
+    } else if (
+      og_experiment_info_tsv.startsWith("NO_FILE") && \
+      og_read_group_info_tsv.startsWith("NO_FILE") && \
+      og_file_info_tsv.startsWith("NO_FILE") && \
+      (metadata_payload_json.startsWith("NO_FILE") || data_directory.startsWith("NO_FILE"))
+    ){
+      exit 1,"`metadata_payload_json` and `data_directory` must be invoked together."
+    } else if (
+      metadata_payload_json.startsWith("NO_FILE") && \
+      data_directory.startsWith("NO_FILE") && \
+      (og_experiment_info_tsv.startsWith("NO_FILE") || og_read_group_info_tsv.startsWith("NO_FILE") || og_file_info_tsv.startsWith("NO_FILE"))
+    ){
+      exit 1,"`experiment_info_tsv` , `read_group_info_tsv` , and `file_info_tsv` must be invoked together."
+    } else if (
+      !og_experiment_info_tsv.startsWith("NO_FILE") && \
+      !og_read_group_info_tsv.startsWith("NO_FILE") && \
+      !og_file_info_tsv.startsWith("NO_FILE") && \
+      !metadata_payload_json.startsWith("NO_FILE") && \
+      !data_directory.startsWith("NO_FILE")
+    ) {
+      exit 1,"Too many parameters invoked. Please re-submit with either of the following pairings: 1. `experiment_info_tsv` , `read_group_info_tsv` , and `file_info_tsv` 2. `metadata_payload_json` and `data_directory`"
+    }
+
+    if (
+      og_experiment_info_tsv.startsWith("NO_FILE") && \
+      og_read_group_info_tsv.startsWith("NO_FILE") && \
+      og_file_info_tsv.startsWith("NO_FILE")
+    ) {
+      payloadJsonToTsvs(
+        file(metadata_payload_json),
+        file(data_directory)
+        )
+
+      sanityCheck(
+        payloadJsonToTsvs.out.experiment_tsv,
+        api_token,
+        song_url,
+        clinical_url,
+        params.skip_duplicate_check
+      )
+      
+      experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
+      read_group_info_tsv=payloadJsonToTsvs.out.read_group_tsv
+      file_info_tsv=payloadJsonToTsvs.out.file_tsv
+    } else {
+      sanityCheck(
+        file(og_experiment_info_tsv),
+        api_token,
+        song_url,
+        clinical_url,
+        params.skip_duplicate_check
+      )
+      
+      experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
+      read_group_info_tsv=file(og_read_group_info_tsv)
+      file_info_tsv=file(og_file_info_tsv)
     }
 
     checkCramReference(
-      file(file_info_tsv),
-      file(ref_genome_fa)
+      file_info_tsv,
+      file(ref_genome_fa),
+      experiment_info_tsv
       )
 
 
     // download from ega after payload is generated and valid according to the given schema
-    if (params.download_mode!='local'){
+    if (params.download_mode!='local' ){
       egaWf(
         params.download_mode,
         file_info_tsv,
         checkCramReference.out.check_status
       )
       sequence_files=egaWf.out.sequence_files
+    } else if (og_file_info_tsv.startsWith("NO_FILE")){
+      sequence_files=file_info_tsv.splitCsv( header : true , sep:'\t').map( row -> file("${row.path}",checkIfExists : true)) 
     } else {
-      sequence_files=Channel.fromPath(file_info_tsv) | splitCsv( header : true , sep:'\t') | map( row -> file("${row.path}",checkIfExists : true)) 
+      sequence_files=Channel.fromPath(file_info_tsv).splitCsv( header : true , sep:'\t').map( row -> file("${row.path}",checkIfExists : true))
     }
     
     // Split files into CRAM and nonCRAM files accordingly
@@ -208,14 +296,14 @@ workflow ArgoDataSubmissionWf {
     if (checkCramReference.out.check_status && ref_genome_fa.startsWith("NO_FILE")){
       // Generate metadata payload per normal
       pGenExp(
-        file(experiment_info_tsv),
-        file(read_group_info_tsv),
-        file(file_info_tsv),
+        experiment_info_tsv,
+        read_group_info_tsv,
+        file_info_tsv,
         file(extra_info_tsv),
-        file(metadata_payload_json),
+        file("NO_FILE1"),
         params.schema_url,
-        [file("NO_FILE1")],
-        file("NO_FILE2")
+        [file("NO_FILE2")],
+        file("NO_FILE3")
       )
       // Validate payload
       valSeq(
@@ -232,17 +320,17 @@ workflow ArgoDataSubmissionWf {
       // If reference genome is provided...
       cram2bam(
       cram_sequence_files,
-      file(ref_genome_fa),
+      checkCramReference.out.ref_genome_fa,
       Channel.fromPath(getSecondaryFiles(ref_genome_fa,['{fai,gzi}']),checkIfExists:true).collect()
       )
 
       // Generate metadata payload while recalulating md5sum and size for cram2bam files and move cram info
       pGenExp(
-      file(experiment_info_tsv),
-      file(read_group_info_tsv),
-      file(file_info_tsv),
+      experiment_info_tsv,
+      read_group_info_tsv,
+      file_info_tsv,
       file(extra_info_tsv),
-      file(metadata_payload_json),
+      file("NO_FILE"),
       params.schema_url,
       cram2bam.out.output_bam.collect(),
       file(ref_genome_fa)
@@ -293,6 +381,10 @@ workflow {
     params.file_info_tsv,
     params.extra_info_tsv,
     params.metadata_payload_json,
-    params.ref_genome_fa
+    params.ref_genome_fa,
+    params.data_directory,
+    params.api_token,
+    params.song_url,
+    params.clinical_url
   )
 }
