@@ -42,8 +42,8 @@ params.study_id=""
 params.download_mode="local"
 
 // sanityChecks
-params.song_url="https://submission-song.rdpc-qa.cancercollaboratory.org"
-params.clinical_url="https://clinical.qa.argo.cancercollaboratory.org"
+params.song_url="https://submission-song.rdpc.cancercollaboratory.org"
+params.clinical_url="https://clinical.platform.icgc-argo.org"
 params.api_token=""
 
 // payloadJsonToTsvs
