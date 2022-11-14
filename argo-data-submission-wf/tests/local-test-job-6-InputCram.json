@@ -6,18 +6,6 @@
     "study_id":"TEST-QA",
     "song_url": "https://submission-song.rdpc-qa.cancercollaboratory.org",
     "score_url": "https://submission-score.rdpc-qa.cancercollaboratory.org",
-    "payloadGen": {
-      "cpus": 2,
-      "mem": 2
-    },
-    "validateSeq": {
-      "cpus": 2,
-      "mem": 2
-    },
-    "upload": {
-      "song_cpus": 2,
-      "song_mem": 2,
-      "score_cpus": 3,
-      "score_mem": 8
-    }
+    "schema_url": "https://submission-song.rdpc-qa.cancercollaboratory.org/schemas/sequencing_experiment",
+    "clinical_url": "https://clinical.qa.argo.cancercollaboratory.org"
 }
