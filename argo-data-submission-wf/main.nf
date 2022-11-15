@@ -42,8 +42,9 @@ params.study_id=""
 params.download_mode="local"
 
 // sanityChecks
-params.song_url="https://submission-song.rdpc.cancercollaboratory.org"
-params.clinical_url="https://clinical.platform.icgc-argo.org"
+params.song_url=""
+params.score_url=""
+params.clinical_url=""
 params.api_token=""
 
 // payloadJsonToTsvs
@@ -51,7 +52,7 @@ params.data_directory="NO_FILE1"
 params.skip_duplicate_check=false
 
 // payloadGenSeqExperiment
-params.schema_url="https://submission-song.rdpc.cancercollaboratory.org/schemas/sequencing_experiment"
+params.schema_url=""
 params.experiment_info_tsv="NO_FILE2"
 params.read_group_info_tsv="NO_FILE3"
 params.file_info_tsv="NO_FILE4"
@@ -75,7 +76,6 @@ params.aspera_scp_pass=""
 params.c4gh_pass_phrase=""
 params.c4gh_secret_key="NO_FILE5"
 
-params.score_url = ""
 params.payloadGen = [:]
 params.upload = [:]
 params.validateSeq = [:]

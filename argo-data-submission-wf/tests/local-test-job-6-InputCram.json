@@ -3,9 +3,5 @@
     "file_info_tsv":"input/file_local_cram.tsv",
     "read_group_info_tsv":"input/read_group_cram.tsv",
     "download_mode" : "local",
-    "study_id":"TEST-QA",
-    "song_url": "https://submission-song.rdpc-qa.cancercollaboratory.org",
-    "score_url": "https://submission-score.rdpc-qa.cancercollaboratory.org",
-    "schema_url": "https://submission-song.rdpc-qa.cancercollaboratory.org/schemas/sequencing_experiment",
-    "clinical_url": "https://clinical.qa.argo.cancercollaboratory.org"
+    "study_id":"TEST-QA"
 }

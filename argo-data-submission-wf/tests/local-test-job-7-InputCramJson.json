@@ -2,9 +2,5 @@
     "metadata_payload_json":"input/InputCramJsonWrongSample.json",
     "data_directory":"input",
     "download_mode" : "local",
-    "study_id":"TEST-QA",
-    "song_url": "https://submission-song.rdpc-qa.cancercollaboratory.org",
-    "score_url": "https://submission-score.rdpc-qa.cancercollaboratory.org",
-    "schema_url": "https://submission-song.rdpc-qa.cancercollaboratory.org/schemas/sequencing_experiment",
-    "clinical_url": "https://clinical.qa.argo.cancercollaboratory.org"
+    "study_id":"TEST-QA"
 }
