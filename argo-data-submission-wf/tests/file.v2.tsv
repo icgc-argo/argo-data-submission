@@ -1,0 +1,7 @@
+type	name	format	size	md5sum	path
+file	C0HVY.2_r1.fq.gz	FASTQ	2040	c4971f805930e9e31e1c45314c652d3c	input/C0HVY.2_r1.fq.gz
+file	C0HVY.2_r2.fq.gz	FASTQ	2042	f60026e682bf55f014c84d494112aa13	input/C0HVY.2_r2.fq.gz
+file	D0RE2.1_r1.fq.gz	FASTQ	2309	835b35f6e7f8263636fce4224b1aca69	input/D0RE2.1_r1.fq.gz
+file	D0RE2.1_r2.fq.gz	FASTQ	2365	23d030ddba2916f8430b13234e3e9a0c	input/D0RE2.1_r2.fq.gz
+file	D0RH0.2_r1.fq.gz	FASTQ	1872	b3aa75d0585a989bb25fae252a10b532	input/D0RH0.2_r1.fq.gz
+file	D0RH0.2_r2.fq.gz	FASTQ	1894	c59ebfa4199287bf3911a4c1d6eda71e	input/D0RH0.2_r2.fq.gz

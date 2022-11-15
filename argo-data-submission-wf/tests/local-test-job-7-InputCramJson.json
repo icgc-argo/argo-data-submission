@@ -1,0 +1,6 @@
+{
+    "metadata_payload_json":"input/InputCramJsonWrongSample.json",
+    "data_directory":"input",
+    "download_mode" : "local",
+    "study_id":"TEST-QA"
+}
