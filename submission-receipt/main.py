@@ -21,34 +21,83 @@
     Edmund Su
 """
 
-import os
-import sys
 import argparse
-import subprocess
-
+import requests
+import json
+import csv
+import sys
+import json
 
 def main():
     """
-    Python implementation of tool: submission-receipt
-
+    Python implementation of tool: sanity-check
     This is auto-generated Python code, please update as needed!
     """
 
-    parser = argparse.ArgumentParser(description='Tool: submission-receipt')
-    parser.add_argument('-i', '--input-file', dest='input_file', type=str,
-                        help='Input file', required=True)
-    parser.add_argument('-o', '--output-dir', dest='output_dir', type=str,
-                        help='Output directory', required=True)
+    parser = argparse.ArgumentParser(description='Tool: sanity-check')
+    parser.add_argument('-s', '--study_id', dest='study_id',type=str,
+                        help='Submission SONG API interaction URL', required=True)
+    parser.add_argument('-a', '--analysis_id', dest='analysis_id',type=str,
+                        help='Submission SONG API interaction URL', required=True)
+    parser.add_argument('-u', '--submission_song_url', dest='submission_song_url',type=str,
+                        help='Submission SONG API interaction URL', required=True)
+    parser.add_argument('-f', '--files', dest='files',nargs='+',type=str,
+                        help='Submission SONG API interaction URL', required=True)
+    parser.add_argument('-o', '--output_file', dest='output_file',type=str,
+                        help='Submission SONG API interaction URL', required=True)
     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_file):
-        sys.exit('Error: specified input file %s does not exist or is not accessible!' % args.input_file)
+    header={"accept":"*/*"}
+    url=args.submission_song_url+"/studies/%s/analysis/%s" % (args.study_id,args.analysis_id)
+    try:
+        response=requests.get(url,headers=header)
+    except requests.exceptions.RequestException as e:  # This is the correct syntax
+        print("Unable to establish connection")
+        raise SystemExit(e)
 
-    if not os.path.isdir(args.output_dir):
-        sys.exit('Error: specified output dir %s does not exist or is not accessible!' % args.output_dir)
-
-    subprocess.run(f"fastqc -o {args.output_dir} {args.input_file}", shell=True, check=True)
-
+    if response.status_code==200:
+        with open(args.output_file, 'w', newline='') as csvfile:
+            metadata={
+                "analysisState":None,
+                'publishedAt':None,
+                'submitterSampleId':None,
+                'submitterSpecimenId':None,
+                'submitterDonorId':None,
+                'sampleId':None,
+                'specimenId':None,
+                "donorId":None,
+                "analysisId":None,
+                "studyId":None,
+                "objectId":None,
+                "fileName":None,
+                "fileMd5sum":None
+                }
+    
+            fieldnames = metadata.keys()
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames,delimiter='\t')
+            writer.writeheader()
+            for file in response.json()['files']:
+                if file['fileName'] not in args.files:
+                    sys.exit("Specified file %s was not found in analysis %s" % (file['fileName'],args.analysis_id))
+                metadata={
+                "analysisState":response.json()['analysisState'],
+                'publishedAt':response.json()['publishedAt'],
+                'submitterSampleId':response.json()['samples'][0]['submitterSampleId'],
+                'submitterSpecimenId':response.json()['samples'][0]['specimen']['submitterSpecimenId'],
+                'submitterDonorId':response.json()['samples'][0]['donor']['submitterDonorId'],
+                'sampleId':response.json()['samples'][0]['sampleId'],
+                'specimenId':response.json()['samples'][0]['specimen']['specimenId'],
+                "donorId":response.json()['samples'][0]['donor']['donorId'],
+                "analysisId":args.analysis_id,
+                "studyId":args.study_id,
+                "objectId":file['objectId'],
+                "fileName":file['fileName'],
+                "fileMd5sum":file['fileMd5sum']
+                }
+                writer.writerow(metadata)
+    else:
+        sys.exit("analysis %s in study %s could not be found" % (args.analysis_id,args.study_id))
 
 if __name__ == "__main__":
     main()
+

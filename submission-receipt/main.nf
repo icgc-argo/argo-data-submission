@@ -18,6 +18,7 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
@@ -44,22 +45,27 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.input_file = ""
-params.output_pattern = "*"  // output file name pattern
+params.study_id=""
+params.analysis_id=""
+params.submission_song_url=""
+params.files="NO_FILE"
 
 
 process submissionReceipt {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path input_file
+    val study_id
+    val analysis_id
+    val submission_song_url
+    path files
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output_file
+    path "${analysis_id}_submission_receipt.tsv", emit: receipt
 
   script:
     // add and initialize variables here as needed
@@ -68,9 +74,11 @@ process submissionReceipt {
     mkdir -p output_dir
 
     main.py \
-      -i ${input_file} \
-      -o output_dir
-
+      -s ${study_id} \
+      -a ${analysis_id} \
+      -u ${submission_song_url} \
+      -f ${files} \
+      -o ${analysis_id}_submission_receipt.tsv
     """
 }
 
@@ -79,6 +87,9 @@ process submissionReceipt {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   submissionReceipt(
-    file(params.input_file)
+    params.study_id,
+    params.analysis_id,
+    params.submission_song_url,
+    Channel.fromPath(params.files).collect()
   )
 }
