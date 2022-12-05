@@ -36,15 +36,15 @@ def main():
 
     parser = argparse.ArgumentParser(description='Tool: sanity-check')
     parser.add_argument('-s', '--study_id', dest='study_id',type=str,
-                        help='Submission SONG API interaction URL', required=True)
+                        help='Study ID used for querying', required=True)
     parser.add_argument('-a', '--analysis_id', dest='analysis_id',type=str,
-                        help='Submission SONG API interaction URL', required=True)
+                        help='Analysis ID (UUID) to query', required=True)
     parser.add_argument('-u', '--submission_song_url', dest='submission_song_url',type=str,
-                        help='Submission SONG API interaction URL', required=True)
+                        help='Submission SONG API URL', required=True)
     parser.add_argument('-f', '--files', dest='files',nargs='+',type=str,
-                        help='Submission SONG API interaction URL', required=True)
+                        help='List of files to verify against analysis ID', required=True)
     parser.add_argument('-o', '--output_file', dest='output_file',type=str,
-                        help='Submission SONG API interaction URL', required=True)
+                        help='Destination/Name of output', required=True)
     args = parser.parse_args()
 
     header={"accept":"*/*"}
@@ -76,9 +76,13 @@ def main():
             fieldnames = metadata.keys()
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames,delimiter='\t')
             writer.writeheader()
+
+            for file in args.files:
+                if file not in [z['fileName'] for z in response.json()['files']]:
+                    sys.exit("Supplied file %s was not found in the analysis." % (file))
             for file in response.json()['files']:
                 if file['fileName'] not in args.files:
-                    sys.exit("Specified file %s was not found in analysis %s" % (file['fileName'],args.analysis_id))
+                    sys.exit("The file %s from %s was not found in supplied files." % (file['fileName'],args.analysis_id))
                 metadata={
                 "analysisState":response.json()['analysisState'],
                 'publishedAt':response.json()['publishedAt'],

@@ -71,8 +71,6 @@ process submissionReceipt {
     // add and initialize variables here as needed
 
     """
-    mkdir -p output_dir
-
     main.py \
       -s ${study_id} \
       -a ${analysis_id} \
