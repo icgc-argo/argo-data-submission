@@ -45,6 +45,8 @@ def main():
                         help='List of files to verify against analysis ID', required=True)
     parser.add_argument('-o', '--output_file', dest='output_file',type=str,
                         help='Destination/Name of output', required=True)
+    parser.add_argument('-k', '--skip_check', dest='skip_check',action='store_true',
+                        help='Skip check of provided files against submitted analysis')
     args = parser.parse_args()
 
     header={"accept":"*/*"}
@@ -70,19 +72,29 @@ def main():
                 "studyId":None,
                 "objectId":None,
                 "fileName":None,
-                "fileMd5sum":None
+                "fileMd5sum":None,
+                "fileSize":None
                 }
+
+            for file in response.json()['files']:
+                if file['info'].get("original_cram_info"):
+                    metadata["original_fileName"]=None
+                    metadata["original_fileMd5sum"]=None
+                    metadata["original_fileSize"]=None
     
             fieldnames = metadata.keys()
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames,delimiter='\t')
             writer.writeheader()
 
-            for file in args.files:
-                if file not in [z['fileName'] for z in response.json()['files']]:
-                    sys.exit("Supplied file %s was not found in the analysis." % (file))
-            for file in response.json()['files']:
-                if file['fileName'] not in args.files:
-                    sys.exit("The file %s from %s was not found in supplied files." % (file['fileName'],args.analysis_id))
+            if not args.skip_check:
+                for file in args.files:
+                    if file not in [z['fileName'] for z in response.json()['files']]:
+                        sys.exit("Supplied file %s was not found in the analysis." % (file))
+                for file in response.json()['files']:
+                    if file['fileName'] not in args.files:
+                        sys.exit("The file %s from %s was not found in supplied files." % (file['fileName'],args.analysis_id))
+
+            for file in response.json()['files']:              
                 metadata={
                 "analysisState":response.json()['analysisState'],
                 'publishedAt':response.json()['publishedAt'],
@@ -96,8 +108,15 @@ def main():
                 "studyId":args.study_id,
                 "objectId":file['objectId'],
                 "fileName":file['fileName'],
-                "fileMd5sum":file['fileMd5sum']
+                "fileMd5sum":file['fileMd5sum'],
+                "fileSize":file['fileSize']
                 }
+
+                if file['info'].get("original_cram_info"):
+                    metadata["original_fileName"]=file['info']['original_cram_info']['fileName']
+                    metadata["original_fileMd5sum"]=file['info']['original_cram_info']['fileMd5sum']
+                    metadata["original_fileSize"]=file['info']['original_cram_info']['fileSize']
+
                 writer.writerow(metadata)
     else:
         sys.exit("analysis %s in study %s could not be found" % (args.analysis_id,args.study_id))

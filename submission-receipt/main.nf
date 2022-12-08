@@ -49,7 +49,7 @@ params.study_id=""
 params.analysis_id=""
 params.submission_song_url=""
 params.files="NO_FILE"
-
+params.skip_check=false
 
 process submissionReceipt {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -62,6 +62,7 @@ process submissionReceipt {
     val study_id
     val analysis_id
     val submission_song_url
+    val skip_check
     path files
 
   output:  // output, make update as needed
@@ -69,14 +70,15 @@ process submissionReceipt {
 
   script:
     // add and initialize variables here as needed
-
+    args_skip_check = skip_check==true ? "--skip_check" : ""
     """
     main.py \
       -s ${study_id} \
       -a ${analysis_id} \
       -u ${submission_song_url} \
       -f ${files} \
-      -o ${analysis_id}_submission_receipt.tsv
+      -o ${analysis_id}_submission_receipt.tsv \
+      ${args_skip_check}
     """
 }
 
@@ -88,6 +90,7 @@ workflow {
     params.study_id,
     params.analysis_id,
     params.submission_song_url,
+    params.skip_check,
     Channel.fromPath(params.files).collect()
   )
 }
