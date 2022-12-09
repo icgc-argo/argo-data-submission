@@ -21,7 +21,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '2.6.1'
+version = '2.9.0'
 
 // universal params go here, change default value as needed
 params.publish_dir = ""  // set to empty string will disable publishDir
@@ -33,6 +33,7 @@ params.first_retry_wait_time = 1  // in seconds
 params.study_id = "TEST-PR"
 params.payload = "NO_FILE"
 params.upload = []
+params.analysis_id = ""  // optional, analysis must already exist and in UNPUBLISHED state if analysis_id provided
 
 params.api_token = ""
 
@@ -40,21 +41,23 @@ params.song_cpus = 1
 params.song_mem = 1  // GB
 params.song_url = "https://song.rdpc-qa.cancercollaboratory.org"
 params.song_api_token = ""
-params.song_container_version = "4.2.1"
+params.song_container = "ghcr.io/overture-stack/song-client"
+params.song_container_version = "5.0.2"
 
 params.score_cpus = 1
 params.score_mem = 1  // GB
 params.score_transport_mem = 1  // GB
 params.score_url = "https://score.rdpc-qa.cancercollaboratory.org"
 params.score_api_token = ""
-params.score_container_version = "5.0.0"
-
+params.score_container = "ghcr.io/overture-stack/score"
+params.score_container_version = "5.8.1"
 
 song_params = [
     *:params,
     'cpus': params.song_cpus,
     'mem': params.song_mem,
     'song_url': params.song_url,
+    'song_container': params.song_container,
     'song_container_version': params.song_container_version,
     'api_token': params.song_api_token ?: params.api_token
 ]
@@ -66,6 +69,7 @@ score_params = [
     'transport_mem': params.score_transport_mem,
     'song_url': params.song_url,
     'score_url': params.score_url,
+    'score_container': params.score_container,
     'score_container_version': params.score_container_version,
     'api_token': params.score_api_token ?: params.api_token
 ]
@@ -81,16 +85,20 @@ workflow SongScoreUpload {
         study_id
         payload
         upload
+        analysis_id
 
     main:
-        // Create new analysis
-        songSub(study_id, payload)
+        if (!analysis_id) {
+          // Create new analysis
+          songSub(study_id, payload)
+          analysis_id = songSub.out
+        }
 
         // Generate file manifest for upload
-        songMan(study_id, songSub.out, upload.collect())
+        songMan(study_id, analysis_id, upload.collect())
 
         // Upload to SCORE
-        scoreUp(songSub.out, songMan.out, upload.collect())
+        scoreUp(analysis_id, songMan.out, upload.collect())
 
         // Publish the analysis
         songPub(study_id, scoreUp.out.ready_to_publish)
@@ -107,6 +115,7 @@ workflow {
   SongScoreUpload(
     params.study_id,
     file(params.payload),
-    Channel.fromPath(params.upload)
+    Channel.fromPath(params.upload),
+    params.analysis_id
   )
 }

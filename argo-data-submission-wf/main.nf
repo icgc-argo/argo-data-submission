@@ -40,6 +40,10 @@ params.cleanup = true
 // ArgoDataSubmissionWf
 params.study_id=""
 params.download_mode="local"
+params.song_container = ""
+params.song_container_version = ""
+params.score_container = ""
+params.score_container_version = ""
 
 // sanityChecks
 params.song_url=""
@@ -124,7 +128,11 @@ upload_params = [
   'cpus': params.cpus,
   'mem': params.mem,
   'song_url': params.song_url,
+  'song_container': params.song_container,
+  'song_container_version': params.song_container_version,
   'score_url': params.score_url,
+  'score_container': params.score_container,
+  'score_container_version': params.score_container_version,
   'api_token': params.api_token,
   *:(params.upload ?: [:])
 ]
@@ -140,7 +148,7 @@ payloadJsonToTsvs_params = [
 ]
 
 
-include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(upload_params)
+include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.0/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.5/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.4/main.nf' params(egaDownload_params)
 include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.0/main.nf' params(payloadGen_params)
@@ -314,7 +322,8 @@ workflow ArgoDataSubmissionWf {
       uploadWf(
         study_id,
         valSeq.out.validated_payload,
-        sequence_files.collect()
+        sequence_files.collect(),
+        ''
       )
     } else if (checkCramReference.out.check_status && !ref_genome_fa.startsWith("NO_FILE")){
       // If reference genome is provided...
@@ -344,8 +353,10 @@ workflow ArgoDataSubmissionWf {
       uploadWf(
         study_id,
         valSeq.out.validated_payload,
-        not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect()
+        not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect(),
+        ''
       )
+
     }
     if (params.cleanup && params.download_mode!='local' && ref_genome_fa.startsWith("NO_FILE")) {
       // only cleanup the sequence files when they are not from local
