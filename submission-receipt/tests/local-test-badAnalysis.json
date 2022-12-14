@@ -1,0 +1,14 @@
+{
+    "study_id":"DATA-CA",
+    "analysis_id": "8f7d51a3-e7e3-487f-bd51-a3e7e3687777",
+    "submission_song_url":"https://submission-song.rdpc-qa.cancercollaboratory.org",
+    "files":[
+        "TU63.0.R1.fastq.gz",
+        "TU63.1.R1.fastq.gz",
+        "TU63.2.R1.fastq.gz",
+        "TU63.0.R2.fastq.gz",
+        "TU63.1.R2.fastq.gz",
+        "TU63.2.R2.fastq.gz"
+    ],
+    "expected_output":"expected/expected_submission_receipt.tsv"
+}

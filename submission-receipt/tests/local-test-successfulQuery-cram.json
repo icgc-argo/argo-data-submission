@@ -1,0 +1,13 @@
+{
+    "study_id":"TEST-QA",
+    "analysis_id": "1ff6dbc5-8726-4184-b6db-c58726d184cc",
+    "submission_song_url":"https://submission-song.rdpc-qa.cancercollaboratory.org",
+    "files":[
+        "anon_chr1_completeA.bam",
+        "anon_chr1_completeB.bam",
+        "C0HVY.2_r1.fq.gz",
+        "C0HVY.2_r2.fq.gz"
+    ],
+    "expected_output":"expected/expected_cram_submission_receipt.tsv"
+}
+
