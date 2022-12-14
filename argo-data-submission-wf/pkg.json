@@ -19,6 +19,7 @@
         "github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0",
         "github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.1",
         "github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0",
+        "github.com/icgc-argo/argo-data-submission/submission-receipt@0.1.0",
         "github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.0"
     ],
     "devDependencies": [],
