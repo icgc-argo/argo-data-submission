@@ -39,7 +39,7 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-params.cpus = 1
+params.cpus = 2
 params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
@@ -70,8 +70,9 @@ process downloadPyega3 {
     export PYEGA3_EGA_USER=${params.pyega3_ega_user}
     export PYEGA3_EGA_PASS=${params.pyega3_ega_pass}
     mkdir -p ${ega_id}
-    python3.6 /tools/main.py \\
+    python3 /tools/main.py \\
     	-f ${ega_id} \\
+      -c ${params.cpus} \\
     	-o \$PWD \\
     	> download.log 2>&1
     

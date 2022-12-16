@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 LABEL org.opencontainers.image.source https://github.com/edsu7/argo-data-submission
 LABEL org.opencontainers.image.authors Edmund Su (edmund.su@oicr.on.ca)
@@ -12,7 +12,7 @@ RUN mkdir /tools
 
 RUN pip3 install --upgrade pip
 
-RUN pip3 install pyega3
+RUN pip install pyega3
     
 ENV PATH="/tools:${PATH}"
 
