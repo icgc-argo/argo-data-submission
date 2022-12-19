@@ -48,6 +48,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 params.ega_id=''
 params.pyega3_ega_user=''
 params.pyega3_ega_pass=''
+params.connections=30
 
 
 process downloadPyega3 {
@@ -59,6 +60,7 @@ process downloadPyega3 {
 
   input:  // input, make update as needed
     val ega_id
+    val connections
     val dependency
 
   output:  // output, make update as needed
@@ -72,7 +74,7 @@ process downloadPyega3 {
     mkdir -p ${ega_id}
     python3 /tools/main.py \\
     	-f ${ega_id} \\
-      -c ${params.cpus} \\
+      -c ${connections} \\
     	-o \$PWD \\
     	> download.log 2>&1
     
@@ -85,6 +87,7 @@ process downloadPyega3 {
 workflow {
   downloadPyega3(
     params.ega_id,
+    params.connections,
     true
   )
 }

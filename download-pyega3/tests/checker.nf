@@ -43,7 +43,7 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-
+params.connections=30
 
 include { downloadPyega3 } from '../main.nf'
 
@@ -79,6 +79,7 @@ workflow checker {
   main:
     downloadPyega3(
       ega_id,
+      params.connections,
       true
     )
 
