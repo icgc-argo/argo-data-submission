@@ -1,6 +1,6 @@
 {
     "name": "ega-download-wf",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "Workflow wrapper for various methods to download data from EGA-archive",
     "main": "main.nf",
     "deprecated": false,
