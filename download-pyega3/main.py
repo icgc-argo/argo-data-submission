@@ -41,6 +41,7 @@ def main():
     parser = argparse.ArgumentParser(description='Download files from EGA pyega3 server')
     parser.add_argument('-f', '--file_name', dest="file_name", help="EGA file name", required=True)
     parser.add_argument('-o', '--output', dest='output', help="Output file directory", required=True)
+    parser.add_argument('-c', '--connections', dest='connections', help="Number of connections to use", required=True)
 
     results = parser.parse_args()
 
@@ -70,7 +71,7 @@ def main():
         
         # Download process
         subprocess.call(
-            ["pyega3","-cf",cred_file,"fetch",results.file_name,"--delete-temp-files"]
+            ["pyega3","--connections",results.connections,"-cf",cred_file,"fetch",results.file_name,"--delete-temp-files"]
         )
         
         # Check if successful

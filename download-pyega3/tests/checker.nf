@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.3'
+version = '0.2.0'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-pyega3'
@@ -43,7 +43,7 @@ params.container_version = ""
 params.container = ""
 
 // tool specific parmas go here, add / change as needed
-
+params.connections=30
 
 include { downloadPyega3 } from '../main.nf'
 
@@ -79,6 +79,7 @@ workflow checker {
   main:
     downloadPyega3(
       ega_id,
+      params.connections,
       true
     )
 
