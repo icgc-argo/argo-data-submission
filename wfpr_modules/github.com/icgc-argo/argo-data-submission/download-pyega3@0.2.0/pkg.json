@@ -1,13 +1,12 @@
 {
-    "name": "download-aspera",
-    "version": "0.1.1",
-    "description": "Wrapper to utilize Aspera for EGA downloads",
+    "name": "download-pyega3",
+    "version": "0.2.0",
+    "description": "EGA download client",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
         "bioinformatics",
-        "seq",
-        "qc metrics"
+        "seq"
     ],
     "repository": {
         "type": "git",

@@ -47,6 +47,7 @@ params.c4gh_pass_phrase=""
 
 params.pyega3_ega_user=""
 params.pyega3_ega_pass=""
+params.connections=30
 
 params.downloadPyega3=[:]
 params.downloadAspera=[:]
@@ -58,6 +59,7 @@ downloadPyega3_params = [
   'publish_dir': params.publish_dir,
   'pyega3_ega_user': params.pyega3_ega_user,
   'pyega3_ega_pass': params.pyega3_ega_pass,
+  'connections': params.connections,
   *:(params.downloadPyega3 ?: [:]) 
 ]
 
@@ -77,7 +79,7 @@ decryptAspera_params = [
 ]
 
 
-include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.1.3/main.nf' params(downloadPyega3_params)
+include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.2.0/main.nf' params(downloadPyega3_params)
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2/main.nf' params(downloadAspera_params)
 include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1/main.nf' params(decryptAspera_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
@@ -152,6 +154,7 @@ workflow EgaDownloadWf {
 
       downloadPyega3(
         id_ch,
+        params.connections,
         dependency
         )
       

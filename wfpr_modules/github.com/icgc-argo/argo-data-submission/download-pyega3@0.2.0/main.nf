@@ -25,10 +25,10 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.1'
+version = '0.2.0'
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-aspera'
+    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-pyega3'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
@@ -39,19 +39,19 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-params.cpus = 1
+params.cpus = 2
 params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 
 // tool specific parmas go here, add / change as needed
-params.target_file=''
-params.EGAF=''
-params.ASCP_SCP_HOST=''
-params.ASCP_SCP_USER=''
-params.ASPERA_SCP_PASS=''
+params.ega_id=''
+params.pyega3_ega_user=''
+params.pyega3_ega_pass=''
+params.connections=30
 
-process downloadAspera {
+
+process downloadPyega3 {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
   errorStrategy 'terminate'
@@ -59,34 +59,36 @@ process downloadAspera {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    val target_file
-    val EGAF
+    val ega_id
+    val connections
     val dependency
 
   output:  // output, make update as needed
-    path "${EGAF}/${regexed_file_name}", emit: output_file
-
+    path "${ega_id}/*.md5", emit: md5_file
+    path "${ega_id}/*.{bam,cram,fastq.gz,fq.gz,fastq.bz2,fq.bz2,txt.gz,txt.bz2,vcf,vcf.gz,bcf}", emit : output_files
   script:
-    // add and initialize variables here as needed
-    regexed_file_name=target_file.replaceAll(/^.*\//,'')
+
     """
-    mkdir ${EGAF}
-    export ASCP_SCP_HOST=${params.ASCP_SCP_HOST}
-    export ASCP_SCP_USER=${params.ASCP_SCP_USER}
-    export ASPERA_SCP_PASS=${params.ASPERA_SCP_PASS}
-    python3.6 /tools/main.py \\
-      -f ${target_file} \\
-      -o ${EGAF} \\
-      > download.log 2>&1
+    export PYEGA3_EGA_USER=${params.pyega3_ega_user}
+    export PYEGA3_EGA_PASS=${params.pyega3_ega_pass}
+    mkdir -p ${ega_id}
+    python3 /tools/main.py \\
+    	-f ${ega_id} \\
+      -c ${connections} \\
+    	-o \$PWD \\
+    	> download.log 2>&1
+    
     """
 }
+
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
-  downloadAspera(
-    params.target_file,
-    params.EGAF,
+  downloadPyega3(
+    params.ega_id,
+    params.connections,
     true
   )
 }
+
