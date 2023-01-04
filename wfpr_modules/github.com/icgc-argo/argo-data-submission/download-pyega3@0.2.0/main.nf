@@ -25,7 +25,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.3'
+version = '0.2.0'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-pyega3'
@@ -39,7 +39,7 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-params.cpus = 1
+params.cpus = 2
 params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
@@ -48,6 +48,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 params.ega_id=''
 params.pyega3_ega_user=''
 params.pyega3_ega_pass=''
+params.connections=30
 
 
 process downloadPyega3 {
@@ -59,6 +60,7 @@ process downloadPyega3 {
 
   input:  // input, make update as needed
     val ega_id
+    val connections
     val dependency
 
   output:  // output, make update as needed
@@ -70,8 +72,9 @@ process downloadPyega3 {
     export PYEGA3_EGA_USER=${params.pyega3_ega_user}
     export PYEGA3_EGA_PASS=${params.pyega3_ega_pass}
     mkdir -p ${ega_id}
-    python3.6 /tools/main.py \\
+    python3 /tools/main.py \\
     	-f ${ega_id} \\
+      -c ${connections} \\
     	-o \$PWD \\
     	> download.log 2>&1
     
@@ -84,6 +87,7 @@ process downloadPyega3 {
 workflow {
   downloadPyega3(
     params.ega_id,
+    params.connections,
     true
   )
 }
