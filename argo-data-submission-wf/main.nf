@@ -155,7 +155,7 @@ submissionReceipt_params = [
   'mem': params.mem, 
 ]
 
-include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.0/main.nf' params(upload_params)
+include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.1/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.5/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.5/main.nf' params(egaDownload_params)
 include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.0/main.nf' params(payloadGen_params)

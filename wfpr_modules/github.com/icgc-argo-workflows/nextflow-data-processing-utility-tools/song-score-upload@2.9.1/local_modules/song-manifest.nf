@@ -37,6 +37,10 @@ process songManifest {
     memory "${params.mem} GB"
     tag "${analysis_id}"
 
+    if (workflow.containerEngine == "singularity") {
+        containerOptions "--bind \$(pwd):/song-client/logs"
+    }
+
     input:
         val study_id
         val analysis_id

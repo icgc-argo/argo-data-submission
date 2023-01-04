@@ -33,6 +33,10 @@ process songSubmit {
  
     container "${ params.song_container ?: params.container}:${params.song_container_version ?: params.container_version}"
     
+    if (workflow.containerEngine == "singularity") {
+        containerOptions "--bind \$(pwd):/song-client/logs"
+    }
+        
     tag "${study_id}"
     label "songSubmit"
     
