@@ -174,7 +174,7 @@ def check_study_exists(metadata,submission_song_url):
 def check_analysis_exists(metadata,submission_song_url):
     headers={"accept":"*/*"}
     endpoint="%s/studies/%s/analysis/search/id?sampleId=%s" % (submission_song_url,metadata.get('program_id'),metadata.get('sample_id'))
-    error_message=""
+    error_message=[]
     analysis_exists=False
     response=requests.get(endpoint,headers=headers)
     
@@ -194,12 +194,16 @@ def check_analysis_exists(metadata,submission_song_url):
                 analysis['analysisType']['name']=="sequencing_experiment"\
                 :
                     analysis_exists=True
-                    error_message=\
+                    error_message.append(
                         "Sample '%s'/'%s' has an existing published analysis '%s' for experiment_strategy '%s.'" \
                         % \
                         (metadata.get('submitter_sample_id'),metadata.get('sample_id'),analysis['analysisId'],metadata.get('experimental_strategy'))
+                    )
             if analysis_exists:
-                sys.exit(error_message)
+                if len(error_message)>1:
+                    sys.exit("Too many conflict analyses detected. Displaying subset:\n"+"\n".join(error_message[:5]))
+                else:
+                    sys.exit(error_message[0])
             else:
                 return True
     else:
