@@ -162,7 +162,7 @@ include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/ic
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0/main.nf' params(cram2bam_params)
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
-include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0/main.nf' params(sanityCheck_params)
+include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.1/main.nf' params(sanityCheck_params)
 include { payloadJsonToTsvs } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.1/main.nf' params(payloadJsonToTsvs_params)
 include { submissionReceipt } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/submission-receipt@0.1.0/main.nf' params(submissionReceipt_params)
 // please update workflow code as needed
