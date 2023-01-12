@@ -22,7 +22,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '0.3.0'
+version = '0.3.1'
 
 // universal params go here, change default value as needed
 params.container = ""
@@ -40,6 +40,10 @@ params.cleanup = true
 // ArgoDataSubmissionWf
 params.study_id=""
 params.download_mode="local"
+params.song_container = ""
+params.song_container_version = ""
+params.score_container = ""
+params.score_container_version = ""
 
 // sanityChecks
 params.song_url=""
@@ -75,6 +79,9 @@ params.aspera_scp_pass=""
 // DecryptAspera
 params.c4gh_pass_phrase=""
 params.c4gh_secret_key="NO_FILE5"
+
+// SubmissionReceipt
+params.skip_submission_check=false
 
 params.payloadGen = [:]
 params.upload = [:]
@@ -124,7 +131,11 @@ upload_params = [
   'cpus': params.cpus,
   'mem': params.mem,
   'song_url': params.song_url,
+  'song_container': params.song_container,
+  'song_container_version': params.song_container_version,
   'score_url': params.score_url,
+  'score_container': params.score_container,
+  'score_container_version': params.score_container_version,
   'api_token': params.api_token,
   *:(params.upload ?: [:])
 ]
@@ -139,17 +150,21 @@ payloadJsonToTsvs_params = [
   'mem': params.mem,
 ]
 
+submissionReceipt_params = [
+  'cpus': params.cpus,
+  'mem': params.mem, 
+]
 
-include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo/nextflow-data-processing-utility-tools/song-score-upload@2.6.1/main.nf' params(upload_params)
+include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.2/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.5/main.nf' params(validateSeq_params)
-include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.4/main.nf' params(egaDownload_params)
+include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.5/main.nf' params(egaDownload_params)
 include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.0/main.nf' params(payloadGen_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0/main.nf' params(cram2bam_params)
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
-include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.0/main.nf' params(sanityCheck_params)
+include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.1/main.nf' params(sanityCheck_params)
 include { payloadJsonToTsvs } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.1/main.nf' params(payloadJsonToTsvs_params)
-
+include { submissionReceipt } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/submission-receipt@0.1.0/main.nf' params(submissionReceipt_params)
 // please update workflow code as needed
 
 process checkCramReference{
@@ -184,6 +199,18 @@ process checkCramReference{
       exit 0
     fi
   """
+}
+
+process printOut{
+  input:  // 
+      val json_file
+      val output_analysis_id
+      val receipt
+  exec:
+    println ""
+    println "Payload JSON File : ${json_file}"
+    println "Analysis ID : ${output_analysis_id}"
+    println "Submission TSV Receipt: ${receipt}"
 }
 
 workflow ArgoDataSubmissionWf {
@@ -314,8 +341,18 @@ workflow ArgoDataSubmissionWf {
       uploadWf(
         study_id,
         valSeq.out.validated_payload,
-        sequence_files.collect()
+        sequence_files.collect(),
+        ''
       )
+
+      submissionReceipt(
+          study_id,
+          uploadWf.out.analysis_id,
+          song_url,
+          params.skip_submission_check,
+          sequence_files.collect()
+      )
+
     } else if (checkCramReference.out.check_status && !ref_genome_fa.startsWith("NO_FILE")){
       // If reference genome is provided...
       cram2bam(
@@ -344,31 +381,50 @@ workflow ArgoDataSubmissionWf {
       uploadWf(
         study_id,
         valSeq.out.validated_payload,
-        not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect()
+        not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect(),
+        ''
+      )
+
+      submissionReceipt(
+          study_id,
+          uploadWf.out.analysis_id,
+          song_url,
+          params.skip_submission_check,
+          not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect(),
       )
     }
     if (params.cleanup && params.download_mode!='local' && ref_genome_fa.startsWith("NO_FILE")) {
       // only cleanup the sequence files when they are not from local
       cleanup(
       sequence_files.collect(),
-      uploadWf.out.analysis_id  // wait until upload is done
+      submissionReceipt.out.receipt  // wait until upload is done
       )
     } else if (params.cleanup && params.download_mode!='local' && !ref_genome_fa.startsWith("NO_FILE")){
       // only cleanup the sequence files and cram2bam output when they are not from local
       cleanup(
       sequence_files.collect().concat(cram2bam.out.output_bam.collect()).collect(),
-      uploadWf.out.analysis_id  // wait until upload is done
+      submissionReceipt.out.receipt  // wait until upload is done
       )
     } else if (params.cleanup && params.download_mode=='local' && !ref_genome_fa.startsWith("NO_FILE")){
       // only cleanup output from cram2bam on local
       cleanup(
       cram2bam.out.output_bam.collect(),
-       uploadWf.out.analysis_id  // wait until upload is done
+       submissionReceipt.out.receipt // wait until upload is done
       )
     }
+
+    printOut(
+      pGenExp.out.payload,
+      uploadWf.out.analysis_id,
+      submissionReceipt.out.receipt
+    )
+    //Channel.from(pGenExp.out.payload).view()
+    //Channel.of(pGenExp.out.payload).view()
+
     emit:
       json_file=pGenExp.out.payload
       output_analysis_id=uploadWf.out.analysis_id
+      receipt=submissionReceipt.out.receipt
 }
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo

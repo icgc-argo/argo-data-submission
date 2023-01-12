@@ -9,7 +9,8 @@ params.max_retries = 5  // set to 0 will disable retry
 params.first_retry_wait_time = 1  // in seconds
 
 // required params w/ default
-params.container_version = "4.2.1"
+params.container = "ghcr.io/overture-stack/song-client"
+params.container_version = "5.0.2"
 
 // optional if secret mounted from pod else required
 params.api_token = "" // song/score API token for download process
@@ -30,7 +31,13 @@ process songPublish {
     cpus params.cpus
     memory "${params.mem} GB"
  
-    container "overture/song-client:${params.container_version}"
+    container "${ params.song_container ?: params.container}:${params.song_container_version ?: params.container_version}"
+
+    if (workflow.containerEngine == "singularity") {
+        containerOptions "--bind \$(pwd):/song-client/logs"
+    } else if (workflow.containerEngine == "docker") {
+        containerOptions "-v \$(pwd):/song-client/logs"
+    }
 
     tag "${analysis_id}"
     
