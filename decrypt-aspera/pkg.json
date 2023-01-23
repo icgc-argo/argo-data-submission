@@ -1,6 +1,6 @@
 {
     "name": "decrypt-aspera",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Decrypt C4GH files",
     "main": "main.nf",
     "deprecated": false,
