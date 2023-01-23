@@ -1,5 +1,6 @@
 {
-	"file":"input/mystery_file.bam.c4gh",
+	"download_file":"input/mystery_file.c4gh",
+        "file":"mystery_file.bam",
 	"c4gh_secret_key":"input/C4GH_SECRET_KEY.txt",
 	"expected_output":"expected/mystery_contents.bam",
 	"c4gh_pass_phrase":""

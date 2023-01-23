@@ -46,6 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.file = ""
+params.download_file = ""
 params.c4gh_secret_key = ""
 params.c4gh_pass_phrase = ""
 
@@ -58,7 +59,8 @@ process decryptAspera {
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path file
+    path download_file
+    val file
     path c4gh_secret_key
 
   output:  // output, make update as needed
@@ -72,9 +74,9 @@ process decryptAspera {
     export C4GH_SECRET_KEY=${c4gh_secret_key}
     export C4GH_PASSPHRASE=${params.c4gh_pass_phrase} 
     python3.6 /tools/main.py \\
-      -f ${file} \\
+      -f ${download_file} \\
       > decrypt.log 2>&1
-
+    mv ${download_file.getBaseName()} ${file}
     """
 }
 
@@ -82,7 +84,8 @@ process decryptAspera {
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   decryptAspera(
-    file(params.file),
+    file(params.download_file),
+    params.file,
     file(params.c4gh_secret_key)
   )
 }
