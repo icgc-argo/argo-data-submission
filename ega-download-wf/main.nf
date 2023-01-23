@@ -81,7 +81,7 @@ decryptAspera_params = [
 
 include { downloadPyega3 } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-pyega3@0.2.0/main.nf' params(downloadPyega3_params)
 include { downloadAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2/main.nf' params(downloadAspera_params)
-include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1/main.nf' params(decryptAspera_params)
+include { decryptAspera } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.2/main.nf' params(decryptAspera_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 
 // please update workflow code as needed
@@ -94,6 +94,7 @@ workflow EgaDownloadWf {
   main:  // update as needed
     Channel.fromPath(file_info_tsv).splitCsv(sep:'\t',header:true).map( row -> row.path).set{file_ch}
     Channel.fromPath(file_info_tsv).splitCsv(sep:'\t',header:true).map( row -> row.ega_file_id).set{id_ch}
+    Channel.fromPath(file_info_tsv).splitCsv(sep:'\t',header:true).map( row -> row.name).set{name_cd}
 
     if ( download_mode=='aspera' ){
       Channel
@@ -107,12 +108,14 @@ workflow EgaDownloadWf {
         ]
       )
       .branch {
-        errorAB: it.path.size()==0 & it.ega_file_id.size()==0
-          exit 1, "Insufficient # of file `ega_file_ids` and `path` provided"
+        errorABC: it.path.size()==0 & it.ega_file_id.size()==0 & it.name.size()==0
+          exit 1, "Insufficient # of file `ega_file_ids`,`path`,`name` provided"
         errorA: it.ega_file_id.size()==0
           exit 1,"Insufficient # of `ega_file_ids` provided"
         errorB: it.path.size()==0
           exit 1, "Insufficient # of file `path` provided"
+        errorC: it.name.size()==0
+          exit 1, "Insufficient # of file `name` provided"
         other: true
           return 0
       }
@@ -124,6 +127,7 @@ workflow EgaDownloadWf {
 
       decryptAspera(
         downloadAspera.out.output_file,
+        name_ch,
         file(params.c4gh_secret_key)
         )
 
