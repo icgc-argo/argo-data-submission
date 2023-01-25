@@ -44,6 +44,7 @@ params.container = ""
 
 // tool specific parmas go here, add / change as needed
 params.target_file=''
+params.file=''
 params.ega_file_id=''
 params.ascp_scp_host=''
 params.ascp_scp_user=''
@@ -79,12 +80,14 @@ process file_smart_diff {
 workflow checker {
   take:
     target_file
+    file
     ega_file_id
 
 
   main:
     downloadAspera(
       target_file,
+      file,
       ega_file_id,
       true
     )
@@ -98,6 +101,7 @@ workflow checker {
 workflow {
   checker(
     params.target_file,
+    params.file,
     params.ega_file_id
   )
 }
