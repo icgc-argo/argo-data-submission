@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.2'
+version = '0.1.3'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-aspera'
@@ -44,6 +44,7 @@ params.container = ""
 
 // tool specific parmas go here, add / change as needed
 params.target_file=''
+params.file=''
 params.ega_file_id=''
 params.ascp_scp_host=''
 params.ascp_scp_user=''
@@ -79,12 +80,14 @@ process file_smart_diff {
 workflow checker {
   take:
     target_file
+    file
     ega_file_id
 
 
   main:
     downloadAspera(
       target_file,
+      file,
       ega_file_id,
       true
     )
@@ -98,6 +101,7 @@ workflow checker {
 workflow {
   checker(
     params.target_file,
+    params.file,
     params.ega_file_id
   )
 }
