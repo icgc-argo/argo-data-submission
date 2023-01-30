@@ -25,7 +25,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.2'
+version = '0.1.3'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.download-aspera'
@@ -60,11 +60,12 @@ process downloadAspera {
 
   input:  // input, make update as needed
     val target_file
+    val file
     val ega_file_id
     val dependency
 
   output:  // output, make update as needed
-    path "${ega_file_id}/${regexed_file_name}", emit: output_file
+    path "${ega_file_id}/${file}.c4gh", emit: output_file
 
   script:
     // add and initialize variables here as needed
@@ -78,6 +79,7 @@ process downloadAspera {
       -f ${target_file} \\
       -o ${ega_file_id} \\
       > download.log 2>&1
+      mv ${ega_file_id}/${target_file.replaceAll(/^.*\//,'')} ${ega_file_id}/${file}.c4gh
     """
 }
 
@@ -86,6 +88,7 @@ process downloadAspera {
 workflow {
   downloadAspera(
     params.target_file,
+    params.file,
     params.ega_file_id,
     true
   )

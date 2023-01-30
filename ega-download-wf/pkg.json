@@ -12,7 +12,7 @@
         "url": "https://github.com/icgc-argo/argo-data-submission.git"
     },
     "dependencies": [
-        "github.com/icgc-argo/argo-data-submission/download-aspera@0.1.2",
+        "github.com/icgc-argo/argo-data-submission/download-aspera@0.1.3",
         "github.com/icgc-argo/argo-data-submission/download-pyega3@0.2.0",
         "github.com/icgc-argo/argo-data-submission/decrypt-aspera@0.1.1",
         "github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1"
