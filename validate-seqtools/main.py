@@ -37,15 +37,21 @@ def main():
     parser = argparse.ArgumentParser(description='Tool: validate-seqtools')
     parser.add_argument('-j', '--json-file', dest='json_file', type=str,
                         help='JSON file containing molecular data to be validated', required=True)
-    parser.add_argument('-k', '--skip_md5sum_check', dest='skip_md5sum', action='store_true',
-                        help='JSON file containing molecular data to be validated')
+    parser.add_argument('-k', '--skippable_tests', dest='skippable_tests', nargs="+",default=[],
+                        help='Tests to skip')
+    parser.add_argument('-t', '--threads', dest='threads', default=1,
+                        help='threads to speed up operations')    
     args = parser.parse_args()
 
     # Check if successful
-    if args.skip_md5sum :
-        cmd="seq-tools validate "+args.json_file+" --skip_md5sum_check"
-    else:
-        cmd="seq-tools validate "+args.json_file
+    cmd="seq-tools validate "+args.json_file
+
+    if args.skippable_tests:
+        for test in args.skippable_tests:
+            cmd+=" -k "+test
+    if args.threads:
+        cmd+=" -t "+str(args.threads)
+
     result=subprocess.run(cmd,shell=True)
 
 

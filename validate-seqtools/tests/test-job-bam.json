@@ -1,5 +1,5 @@
 {
     "json_file": "input/anon_chr1_complete.json",
     "files": ["input/anon_chr1_complete.bam"],
-    "expected_output": "expected/anon_chr1_rnaseq.validation_report.PASS-with-WARNING.jsonl"
+    "expected_output": "expected/anon_chr1_rnaseq.validation_report.PASS-with-WARNING-and-SKIPPED-check.jsonl"
 }

@@ -46,7 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.json_file = ""
-params.skip_md5sum_check = false
+params.skippable_tests = ["c683","c685"]
 params.files = ""
 
 
@@ -67,20 +67,26 @@ process validateSeqtools {
 
   script:
     // add and initialize variables here as needed
-    args_skip_md5sum_check = params.skip_md5sum_check  ? "--skip_md5sum_check " : ""
+
     """
     cp ${json_file} local_copy
     python3 /tools/main.py \
       -j local_copy \
-      ${args_skip_md5sum_check} \
+      -k ${params.skippable_tests.join(" ")} \
+      -t ${params.cpus} \
       > seq-tools.log 2>&1
 
     if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
       echo "Payload is INVALID. Please check out details in validation report under: "
-      pwd 
+      pwd
+      exit 1
+    elif ls validation_report.UNKNOWN*.jsonl 1> /dev/null 2>&1;
+    then
+      echo "Payload is UNKNOWN. Please check out details in validation report under: "
+      pwd
       exit 1
     else
-      exit 0
+      echo 0
     fi
     """
 }

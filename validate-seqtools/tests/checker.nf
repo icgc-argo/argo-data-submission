@@ -45,7 +45,6 @@ params.container = ""
 
 include { validateSeqtools } from '../main'
 
-
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
 
