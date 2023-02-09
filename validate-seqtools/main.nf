@@ -46,7 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.json_file = ""
-params.skippable_tests = ["c683","c685"]
+params.skippable_tests = []
 params.files = ""
 
 
@@ -60,6 +60,7 @@ process validateSeqtools {
   input:  // input, make update as needed
     path json_file
     path files
+    val skippable_tests
 
   output:  // output, make update as needed
     path "validation_report.*.jsonl", emit: validation_log
@@ -72,7 +73,7 @@ process validateSeqtools {
     cp ${json_file} local_copy
     python3 /tools/main.py \
       -j local_copy \
-      -k ${params.skippable_tests.join(" ")} \
+      -k ${skippable_tests.join(" ")} \
       -t ${params.cpus} \
       > seq-tools.log 2>&1
 
@@ -97,6 +98,7 @@ process validateSeqtools {
 workflow {
   validateSeqtools(
     file(params.json_file),
-    Channel.fromPath(params.files).collect()
+    Channel.fromPath(params.files).collect(),
+    params.skippable_tests
   )
 }

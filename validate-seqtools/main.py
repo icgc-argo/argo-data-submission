@@ -37,7 +37,7 @@ def main():
     parser = argparse.ArgumentParser(description='Tool: validate-seqtools')
     parser.add_argument('-j', '--json-file', dest='json_file', type=str,
                         help='JSON file containing molecular data to be validated', required=True)
-    parser.add_argument('-k', '--skippable_tests', dest='skippable_tests', nargs="+",default=[],
+    parser.add_argument('-k', '--skippable_tests', dest='skippable_tests', nargs="*",default=[],
                         help='Tests to skip')
     parser.add_argument('-t', '--threads', dest='threads', default=1,
                         help='threads to speed up operations')    

@@ -42,6 +42,7 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
+params.skippable_tests=[]
 
 include { validateSeqtools } from '../main'
 
@@ -70,11 +71,13 @@ workflow checker {
     input_json
     input_files
     expected_output
+    skippable_tests
 
   main:
     validateSeqtools(
       input_json,
-      input_files
+      input_files,
+      skippable_tests
     )
 
     file_smart_diff(
@@ -88,6 +91,7 @@ workflow {
   checker(
     file(params.json_file),
     Channel.fromPath(params.files).collect(),
-    file(params.expected_output)
+    file(params.expected_output),
+    params.skippable_tests
   )
 }
