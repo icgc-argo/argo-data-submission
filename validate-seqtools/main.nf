@@ -77,17 +77,21 @@ process validateSeqtools {
       -t ${params.cpus} \
       > seq-tools.log 2>&1
 
-    if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
-      echo "Payload is INVALID. Please check out details in validation report under: "
-      pwd
-      exit 1
-    elif ls validation_report.UNKNOWN*.jsonl 1> /dev/null 2>&1;
-    then
-      echo "Payload is UNKNOWN. Please check out details in validation report under: "
-      pwd
-      exit 1
+    if ls validation_report.*.jsonl 1> /dev/null 2>&1; then
+      if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
+        echo "Payload is INVALID. Please check out details in validation report under: "
+        pwd
+        exit 1
+      elif ls validation_report.UNKNOWN*.jsonl 1> /dev/null 2>&1;
+      then
+        echo "Payload is UNKNOWN. Please check out details in validation report under: "
+        pwd
+        exit 1
+      else
+        echo 0
+      fi
     else
-      echo 0
+      cat seq-tools.log && exit 1
     fi
     """
 }
