@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.5'
+version = '0.1.6'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.validate-seqtools'
@@ -42,9 +42,9 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
+params.skippable_tests=[]
 
 include { validateSeqtools } from '../main'
-
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
@@ -71,11 +71,13 @@ workflow checker {
     input_json
     input_files
     expected_output
+    skippable_tests
 
   main:
     validateSeqtools(
       input_json,
-      input_files
+      input_files,
+      skippable_tests
     )
 
     file_smart_diff(
@@ -89,6 +91,7 @@ workflow {
   checker(
     file(params.json_file),
     Channel.fromPath(params.files).collect(),
-    file(params.expected_output)
+    file(params.expected_output),
+    params.skippable_tests
   )
 }

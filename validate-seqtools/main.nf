@@ -25,7 +25,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.5'
+version = '0.1.6'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.validate-seqtools'
@@ -46,7 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.json_file = ""
-params.skip_md5sum_check = false
+params.skippable_tests = []
 params.files = ""
 
 
@@ -60,6 +60,7 @@ process validateSeqtools {
   input:  // input, make update as needed
     path json_file
     path files
+    val skippable_tests
 
   output:  // output, make update as needed
     path "validation_report.*.jsonl", emit: validation_log
@@ -67,20 +68,30 @@ process validateSeqtools {
 
   script:
     // add and initialize variables here as needed
-    args_skip_md5sum_check = params.skip_md5sum_check  ? "--skip_md5sum_check " : ""
+
     """
     cp ${json_file} local_copy
     python3 /tools/main.py \
       -j local_copy \
-      ${args_skip_md5sum_check} \
+      -k ${skippable_tests.join(" ")} \
+      -t ${params.cpus} \
       > seq-tools.log 2>&1
 
-    if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
-      echo "Payload is INVALID. Please check out details in validation report under: "
-      pwd 
-      exit 1
+    if ls validation_report.*.jsonl 1> /dev/null 2>&1; then
+      if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
+        echo "Payload is INVALID. Please check out details in validation report under: "
+        pwd
+        exit 1
+      elif ls validation_report.UNKNOWN*.jsonl 1> /dev/null 2>&1;
+      then
+        echo "Payload is UNKNOWN. Please check out details in validation report under: "
+        pwd
+        exit 1
+      else
+        echo 0
+      fi
     else
-      exit 0
+      cat seq-tools.log && exit 1
     fi
     """
 }
@@ -91,6 +102,7 @@ process validateSeqtools {
 workflow {
   validateSeqtools(
     file(params.json_file),
-    Channel.fromPath(params.files).collect()
+    Channel.fromPath(params.files).collect(),
+    params.skippable_tests
   )
 }

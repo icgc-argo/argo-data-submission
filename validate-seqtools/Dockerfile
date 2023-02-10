@@ -37,8 +37,7 @@ RUN cd /tmp &&\
 
 # Install seq-tools
 
-RUN pip install git+https://github.com/icgc-argo/seq-tools.git@1.2.3
-
+RUN pip install git+https://github.com/icgc-argo/seq-tools.git@1.2.4
 #RUN git clone https://github.com/icgc-argo/seq-tools.git@1.1.0 &&\
 #    git clone https://github.com/icgc-argo/seq-tools.git@1.1.0
 #    cd seq-tools &&\
