@@ -46,7 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.json_file = ""
-params.skippable_tests = []
+params.skippable_tests = ""
 params.files = ""
 
 
@@ -73,7 +73,7 @@ process validateSeqtools {
     cp ${json_file} local_copy
     python3 /tools/main.py \
       -j local_copy \
-      -k ${skippable_tests.join(" ")} \
+      -k ${skippable_tests.replaceAll(","," ")} \
       -t ${params.cpus} \
       > seq-tools.log 2>&1
 
