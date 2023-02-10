@@ -42,7 +42,7 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-params.skippable_tests=[]
+params.skippable_tests=""
 
 include { validateSeqtools } from '../main'
 
