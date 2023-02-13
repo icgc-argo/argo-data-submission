@@ -321,7 +321,7 @@ workflow ArgoDataSubmissionWf {
     not_cram_sequence_files=sequence_files.filter(row -> row =~ /bam$|gz$|bz2$/)
 
     if (params.recalculate){
-      recalculate_files=not_cram_sequence_files.collect()
+      recalculate_files=sequence_files.collect()
     } else {
       recalculate_files=[file("NO_FILE4")]
     }
