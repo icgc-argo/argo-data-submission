@@ -25,7 +25,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.6'
+version = '0.1.7'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.validate-seqtools'
@@ -46,7 +46,7 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.json_file = ""
-params.skippable_tests = []
+params.skippable_tests = ""
 params.files = ""
 
 
@@ -73,7 +73,7 @@ process validateSeqtools {
     cp ${json_file} local_copy
     python3 /tools/main.py \
       -j local_copy \
-      -k ${skippable_tests.join(" ")} \
+      -k ${skippable_tests.replaceAll(","," ")} \
       -t ${params.cpus} \
       > seq-tools.log 2>&1
 

@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get install -y libz-dev pkg-config libtool m4 autotools-dev automake libncurses5-dev libbz2-dev liblzma-dev && \
     apt-get install -y git-all && \
     apt-get install -y jq && \
-    apt-get install -y locales
+    apt-get install -y locales pigz pbzip2
 
 # Set local
 

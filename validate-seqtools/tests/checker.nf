@@ -29,7 +29,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.6'
+version = '0.1.7'
 
 container = [
     'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.validate-seqtools'
@@ -42,7 +42,7 @@ params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
-params.skippable_tests=[]
+params.skippable_tests=""
 
 include { validateSeqtools } from '../main'
 
