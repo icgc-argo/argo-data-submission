@@ -157,9 +157,9 @@ submissionReceipt_params = [
 ]
 
 include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.2/main.nf' params(upload_params)
-include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.6/main.nf' params(validateSeq_params)
+include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.7/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.6/main.nf' params(egaDownload_params)
-include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.1/main.nf' params(payloadGen_params)
+include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.2/main.nf' params(payloadGen_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0/main.nf' params(cram2bam_params)
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
@@ -323,16 +323,15 @@ workflow ArgoDataSubmissionWf {
     if (params.recalculate){
       recalculate_files=not_cram_sequence_files.collect()
     } else {
-      recalculate_files=[]
+      recalculate_files=[file("NO_FILE4")]
     }
 
     if (params.skip_tests){
       skipping_tests=params.skipping_tests
     } else {
-      skipping_tests=[]
+      skipping_tests=""
     }
 
-    println skipping_tests
     // If reference genome is not provided...
     if (checkCramReference.out.check_status && ref_genome_fa.startsWith("NO_FILE")){
       // Generate metadata payload per normal

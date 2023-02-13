@@ -7,5 +7,5 @@
     "download_mode": "local",
     "publish_dir": "outdir",
     "skip_tests" : true,
-    "skipping_tests" : ["c681","c683"]
+    "skipping_tests" : "c681,c683,c609"
   }
