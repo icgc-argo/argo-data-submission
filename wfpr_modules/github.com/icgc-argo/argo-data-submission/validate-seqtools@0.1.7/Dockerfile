@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get install -y libz-dev pkg-config libtool m4 autotools-dev automake libncurses5-dev libbz2-dev liblzma-dev && \
     apt-get install -y git-all && \
     apt-get install -y jq && \
-    apt-get install -y locales
+    apt-get install -y locales pigz pbzip2
 
 # Set local
 
@@ -37,8 +37,7 @@ RUN cd /tmp &&\
 
 # Install seq-tools
 
-RUN pip install git+https://github.com/icgc-argo/seq-tools.git@1.2.3
-
+RUN pip install git+https://github.com/icgc-argo/seq-tools.git@1.2.4
 #RUN git clone https://github.com/icgc-argo/seq-tools.git@1.1.0 &&\
 #    git clone https://github.com/icgc-argo/seq-tools.git@1.1.0
 #    cd seq-tools &&\
