@@ -30,6 +30,7 @@ params.container_registry = ""
 params.container_version = ""
 params.cpus = 1
 params.mem = 1  // GB
+params.force = false
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
@@ -44,6 +45,9 @@ params.song_container = ""
 params.song_container_version = ""
 params.score_container = ""
 params.score_container_version = ""
+params.score_mem = 2
+params.score_cpus = 4
+params.score_force = false
 
 // sanityChecks
 params.song_url=""
@@ -131,6 +135,12 @@ upload_params = [
   'first_retry_wait_time': params.first_retry_wait_time,
   'cpus': params.cpus,
   'mem': params.mem,
+  'score_force' : params.score_force,
+  'score_cpus' : params.score_cpus,
+  'score_mem' : params.score_mem,
+  'score_transport_mem' : params.score_mem,
+  'song_cpus' : params.cpus,
+  'song_mem' : params.mem,
   'song_url': params.song_url,
   'song_container': params.song_container,
   'song_container_version': params.song_container_version,
@@ -156,7 +166,7 @@ submissionReceipt_params = [
   'mem': params.mem, 
 ]
 
-include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.2/main.nf' params(upload_params)
+include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.3/main.nf' params(upload_params)
 include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.7/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.6/main.nf' params(egaDownload_params)
 include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.2/main.nf' params(payloadGen_params)
