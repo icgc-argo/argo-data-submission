@@ -1,10 +1,10 @@
 Field	Attribute	Description	Permissible Values	Note
 type	Required	table type	sequencing_file	
 name	Required	Name of the file.	String values must meet the regular expression ^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$. No paths are allowed in the file name.	
-format	Required	Data format of sequencing files.	BAM, FASTQ	
+format	Required	Data format of sequencing files.	BAM, FASTQ,CRAM	
 size	Required	Size of the file, in bytes.		
-md5sum	Required	Computed md5sum of the file. 	String values must meet the regular expression ^[a-fA-F0-9]{32}$	
-path	Required	The path to the file to be submitted		Required for local data and data downloaded from EGA through Aspera
+md5sum	Required	Computed md5sum of the file.	String values must meet the regular expression ^[a-fA-F0-9]{32}$	
+path	Conditional Required	The path to the file to be submitted		Required for local data (use the file path relative to the directory you run the workflow) and data downloaded from EGA through Aspera (use the file path relative to Aspera root directory)
 ega_file_id	Conditional Required	EGA File Unique Accession ID	^EGAF[0-9]{1,32}$	Required for data downloaded from EGA
 ega_dataset_id	Optional	EGA Dataset Accession ID	^EGAD[0-9]{1,32}$	
 ega_experiment_id	Optional	EGA Experiment ID	^EGAX[0-9]{1,32}$	
