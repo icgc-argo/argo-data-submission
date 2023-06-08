@@ -1,0 +1,2 @@
+name	size	md5sum	ega_file_id	ega_dataset_id	ega_experiment_id	ega_sample_id	ega_study_id	ega_run_id	ega_policy_id	ega_analysis_id	ega_submission_id	ega_dac_id	path	type	format
+test_rg_3.bam	14911	178f97f7b1ca8bfc28fd5586bdd56799											input/test_rg_3.bam	file	BAM
