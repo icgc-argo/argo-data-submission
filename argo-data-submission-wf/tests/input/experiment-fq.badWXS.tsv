@@ -1,2 +1,2 @@
 type	submitter_sequencing_experiment_id	program_id	submitter_donor_id	submitter_specimen_id	submitter_sample_id	submitter_matched_normal_sample_id	sequencing_center	platform	platform_model	experimental_strategy	sequencing_date	read_group_count
-sequencing_experiment	SubWf_exp_02_FASTQ_input	TEST-QA	SubWf_test_01	SubWf_test_01_SP_T	SubWf_test_01_SA_T	SubWf_test_01_SA_N	EXT	ILLUMINA	HiSeq 2000	WXS	2014-12-12	3
+sequencing_experiment	SubWf_exp_02_FASTQ_input	TEST-QA	SubWf_test_01	SubWf_test_01_SP_T	SubWf_test_01_SA_T	SubWf_test_01_SA_N	EXT	ILLUMINA	HiSeq 2000	WXS	2014-12-11	3
