@@ -1,0 +1,7 @@
+{
+    "json_file":"input/b9167a75-83ea-4c43-be30-e87faf3557dd.sequencing_experiment.payload.json",
+    "data_directory":"input",
+    "expected_experiment_tsv":"expected/expected_experiment3.tsv",
+    "expected_file_tsv":"expected/expected_files3.tsv",
+    "expected_read_group_tsv":"expected/expected_read_groups3.tsv"
+}
