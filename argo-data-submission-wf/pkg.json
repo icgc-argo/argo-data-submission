@@ -14,10 +14,10 @@
     "dependencies": [
         "github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.7",
         "github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.6",
-        "github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.2",
+        "github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.3",
         "github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1",
         "github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0",
-        "github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.1",
+        "github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.2",
         "github.com/icgc-argo/argo-data-submission/sanity-check@0.1.1",
         "github.com/icgc-argo/argo-data-submission/submission-receipt@0.1.0",
         "github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.3"
