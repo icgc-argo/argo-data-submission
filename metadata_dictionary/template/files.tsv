@@ -1,2 +1,2 @@
 type	name	format	size	md5sum	path	ega_file_id	ega_dataset_id	ega_experiment_id	ega_sample_id	ega_study_id	ega_run_id	ega_policy_id	ega_analysis_id	ega_submission_id	ega_dac_id
-file															
+sequencing_file															
