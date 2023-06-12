@@ -41,12 +41,12 @@ params.cleanup = true
 // ArgoDataSubmissionWf
 params.study_id=""
 params.download_mode="local"
-params.song_container = ""
-params.song_container_version = ""
-params.score_container = ""
-params.score_container_version = ""
-params.score_mem = 2
-params.score_cpus = 4
+params.song_container = "ghcr.io/overture-stack/song-client"
+params.song_container_version = "latest"
+params.score_container = "ghcr.io/overture-stack/score"
+params.score_container_version = "latest"
+params.score_mem = 20
+params.score_cpus = 8
 params.score_force = false
 
 // sanityChecks
@@ -133,8 +133,6 @@ egaDownload_params = [
 upload_params = [
   'max_retries': params.max_retries,
   'first_retry_wait_time': params.first_retry_wait_time,
-  'cpus': params.cpus,
-  'mem': params.mem,
   'score_force' : params.score_force,
   'score_cpus' : params.score_cpus,
   'score_mem' : params.score_mem,
