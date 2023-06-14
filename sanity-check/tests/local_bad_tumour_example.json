@@ -1,0 +1,6 @@
+{
+    "experiment_info_tsv": "input/bad_tumour_example.tsv",
+    "song_url": "https://submission-song.rdpc-qa.cancercollaboratory.org",
+    "clinical_url": "https://clinical.qa.argo.cancercollaboratory.org",
+    "expected_output": "input/comparison_good_example.tsv"
+}

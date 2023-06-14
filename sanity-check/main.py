@@ -58,7 +58,7 @@ def main():
             args.clinical_url,
             args.api_token
         )
-        
+
         final_metadata=compile_metadata(
             metadata,
             clinical_metadata
@@ -67,6 +67,7 @@ def main():
                 final_metadata,
                 args.submission_song_url
         )
+
         if not args.force:
             check_analysis_exists(
                 final_metadata,
@@ -74,7 +75,7 @@ def main():
             )
         
         update_tsv(final_metadata,"updated_"+args.experiment_info_tsv)
-        
+    
 
 def load_tsv(experiment_info_tsv):
     metadata_dict = {}
@@ -145,11 +146,30 @@ def get_clinical(metadata,clinical_url,api_token):
 
         sample_ind=[ele for ele,sample in enumerate(response.json()['specimens'][specimen_ind[0]]['samples']) if sample['sampleId']==return_metadata['sample_id']]
         if len(sample_ind)!=1:
-            sys.exit("ID Mismatch detected. Sample_id:'%s'/'%s'  was not found within Specimen:'%s'/'%s' 's samples" % (metadata['submitter_sample_id'],return_metadata['sample_id'],metadata['submitter_specimen_id'],return_metadata['specimen_id'],))
+            sys.exit("ID Mismatch detected. Sample_id:'%s'/'%s'  was not found within Specimen:'%s'/'%s' 's samples" % (metadata['submitter_sample_id'],return_metadata['sample_id'],metadata['submitter_specimen_id'],return_metadata['specimen_id']))
         return_metadata['sample_type']=response.json()['specimens'][specimen_ind[0]]['samples'][sample_ind[0]]['sampleType']
         return_metadata['submitter_sample_id']=response.json()['specimens'][specimen_ind[0]]['samples'][sample_ind[0]]['submitterId']
+    if return_metadata['tumour_normal_designation']=="Tumour" and metadata.get("submitter_matched_normal_sample_id"):
+        check_tumour_sample_exists(metadata,response.json())
 
     return return_metadata
+
+def check_tumour_sample_exists(metadata,clinical_metadata):
+    submitter_id=metadata['submitter_matched_normal_sample_id']
+    
+    return_id=None
+    tumourNormalDesignation=None
+
+    for specimen in clinical_metadata['specimens']:
+        for samples in specimen['samples']:
+            if samples['submitterId']==submitter_id:
+                return_id=samples['submitterId']
+                tumourNormalDesignation=specimen["tumourNormalDesignation"]
+    if return_id==None:
+        sys.exit("'submitter_matched_normal_sample_id':%s was not found in study. Please verify '%s' has been registered." % (submitter_id,submitter_id))
+    if tumourNormalDesignation=="Tumour":
+        sys.exit("'submitter_matched_normal_sample_id':%s detected as tumour instead of normal. Please verify correct sample." % (submitter_id))
+
 
 def compile_metadata(metadata,clinical_metadata):
     
