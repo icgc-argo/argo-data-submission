@@ -149,10 +149,18 @@ def get_clinical(metadata,clinical_url,api_token):
             sys.exit("ID Mismatch detected. Sample_id:'%s'/'%s'  was not found within Specimen:'%s'/'%s' 's samples" % (metadata['submitter_sample_id'],return_metadata['sample_id'],metadata['submitter_specimen_id'],return_metadata['specimen_id']))
         return_metadata['sample_type']=response.json()['specimens'][specimen_ind[0]]['samples'][sample_ind[0]]['sampleType']
         return_metadata['submitter_sample_id']=response.json()['specimens'][specimen_ind[0]]['samples'][sample_ind[0]]['submitterId']
-    if return_metadata['tumour_normal_designation']=="Tumour" and metadata.get("submitter_matched_normal_sample_id"):
-        check_tumour_sample_exists(metadata,response.json())
+
+    if return_metadata['tumour_normal_designation']=="Tumour":
+        #WGS, WXS, RNA-Seq, Bisulfite-Seq, ChIP-Seq, Targeted-Seq
+        if metadata.get("submitter_matched_normal_sample_id"):
+            check_tumour_sample_exists(metadata,response.json())
+        else:
+            if metadata.get("experimental_strategy")!="RNA-Seq" and metadata.get("experimental_strategy")!= "Targeted-Seq":
+                sys.exit("Null entry for `submitter_matched_normal_sample_id` detected. For tumour `experiment_strategy` type %s ,this field is required and must reference a registered normal sample." % (metadata.get("experimental_strategy")))
 
     return return_metadata
+
+
 
 def check_tumour_sample_exists(metadata,clinical_metadata):
     submitter_id=metadata['submitter_matched_normal_sample_id']
