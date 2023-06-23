@@ -152,17 +152,17 @@ def get_clinical(metadata,clinical_url,api_token):
 
     if return_metadata['tumour_normal_designation']=="Tumour":
         #WGS, WXS, RNA-Seq, Bisulfite-Seq, ChIP-Seq, Targeted-Seq
-        if metadata.get("submitter_matched_normal_sample_id"):
-            check_tumour_sample_exists(metadata,response.json())
-        else:
-            if metadata.get("experimental_strategy")!="RNA-Seq" and metadata.get("experimental_strategy")!= "Targeted-Seq":
+        if metadata.get("experimental_strategy") in ['WGS', 'WXS']:
+            if metadata.get("submitter_matched_normal_sample_id"):
+                check_normal_sample_exists(metadata,response.json())
+            else:
                 sys.exit("Null entry for `submitter_matched_normal_sample_id` detected. For tumour `experiment_strategy` type %s ,this field is required and must reference a registered normal sample." % (metadata.get("experimental_strategy")))
 
     return return_metadata
 
 
 
-def check_tumour_sample_exists(metadata,clinical_metadata):
+def check_normal_sample_exists(metadata,clinical_metadata):
     submitter_id=metadata['submitter_matched_normal_sample_id']
     
     return_id=None
