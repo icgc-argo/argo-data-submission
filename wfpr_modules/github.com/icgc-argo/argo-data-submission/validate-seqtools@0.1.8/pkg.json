@@ -1,13 +1,11 @@
 {
-    "name": "sanity-check",
-    "version": "0.1.1",
-    "description": "Data submission sanity checks including verifying info from Clinical API",
+    "name": "validate-seqtools",
+    "version": "0.1.8",
+    "description": "Using Seq-tools, validates molecular",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
-        "bioinformatics",
-        "seq",
-        "qc metrics"
+        "bioinformatics"
     ],
     "repository": {
         "type": "git",
@@ -28,7 +26,7 @@
     "contributors": [
         {
             "name": "Edmund Su",
-            "email": "esu@oicr.on.ca"
+            "email": "edmund.su@oicr.on.ca"
         }
     ],
     "license": "GNU Affero General Public License v3",

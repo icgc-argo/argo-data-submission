@@ -165,13 +165,13 @@ submissionReceipt_params = [
 ]
 
 include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.3/main.nf' params(upload_params)
-include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.7/main.nf' params(validateSeq_params)
+include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.8/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.6/main.nf' params(egaDownload_params)
 include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.3/main.nf' params(payloadGen_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0/main.nf' params(cram2bam_params)
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
-include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.1/main.nf' params(sanityCheck_params)
+include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.3/main.nf' params(sanityCheck_params)
 include { payloadJsonToTsvs } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.2/main.nf' params(payloadJsonToTsvs_params)
 include { submissionReceipt } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/submission-receipt@0.1.0/main.nf' params(submissionReceipt_params)
 // please update workflow code as needed
