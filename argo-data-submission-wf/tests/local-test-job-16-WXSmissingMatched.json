@@ -1,0 +1,8 @@
+{
+  "study_id": "TEST-QA",
+  "experiment_info_tsv": "input/experiment-fq.badWXS2.tsv",
+  "read_group_info_tsv": "input/read_group-fq.v2.tsv",
+  "file_info_tsv": "input/file-fq.v2.tsv",
+  "download_mode": "local",
+  "publish_dir": "outdir"
+}

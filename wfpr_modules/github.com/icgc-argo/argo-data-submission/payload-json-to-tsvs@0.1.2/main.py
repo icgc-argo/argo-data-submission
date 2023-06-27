@@ -84,9 +84,9 @@ def make_experiment_tsv(metadata):
         for field in [
             'submitter_sequencing_experiment_id','sequencing_center',
             'platform', 'platform_model','experimental_strategy', 'sequencing_date',
-            "library_isolation_protocol","library_preparation_kit",
-            "library_strandedness","rin","dv200","spike_ins_included","spike_ins_fasta",
-            "spike_ins_concentration","target_capture_kit"]:
+            "library_preparation_kit","library_strandedness","rin","dv200",
+            "primary_target_regions","capture_target_regions","number_of_genes",
+            "gene_padding","coverage","target_capture_kit"]:
                 return_metadata[field]=metadata['experiment'].get(field) if metadata['experiment'].get(field) else None  
         
         return_metadata['program_id']=metadata.get("studyId")

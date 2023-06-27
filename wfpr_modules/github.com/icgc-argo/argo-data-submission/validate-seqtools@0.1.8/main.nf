@@ -18,16 +18,17 @@
 
   Authors:
     Edmund Su
+    Linda Xiang
 */
 
 /********************************************************************/
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '0.1.1'
+version = '0.1.8'
 
 container = [
-    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.sanity-check'
+    'ghcr.io': 'ghcr.io/icgc-argo/argo-data-submission.validate-seqtools'
 ]
 default_container_registry = 'ghcr.io'
 /********************************************************************/
@@ -42,41 +43,56 @@ params.cpus = 1
 params.mem = 1  // GB
 params.publish_dir = ""  // set to empty string will disable publishDir
 
-// payloadGenSeqExperiment
-params.song_url="https://submission-song.rdpc-qa.cancercollaboratory.org/"
-params.clinical_url="https://clinical.qa.argo.cancercollaboratory.org"
-params.api_token=""
-params.experiment_info_tsv="NO_FILE1"
-params.skip_duplicate_check=false
 
-process sanityCheck {
+// tool specific parmas go here, add / change as needed
+params.json_file = ""
+params.skippable_tests = ""
+params.files = ""
+
+
+process validateSeqtools {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir ? true : false
-  
+ 
   cpus params.cpus
   memory "${params.mem} GB"
 
   input:  // input, make update as needed
-    path experiment_info_tsv
-    val api_token
-    val song_url
-    val clinical_url
-    val skip_duplicate_check
+    path json_file
+    path files
+    val skippable_tests
 
   output:  // output, make update as needed
-    path "updated*tsv", emit: updated_experiment_info_tsv
- 
-  
+    path "validation_report.*.jsonl", emit: validation_log
+    path "local_copy", emit: validated_payload
+
   script:
     // add and initialize variables here as needed
-    args_skip_duplicate_check = skip_duplicate_check==true ? "--force" : ""
+
     """
-    main.py \
-      -x ${experiment_info_tsv} \
-      -t ${api_token} \
-      -s ${song_url} \
-      -c ${clinical_url} \
-      ${args_skip_duplicate_check}
+    cp ${json_file} local_copy
+    python3 /tools/main.py \
+      -j local_copy \
+      -k ${skippable_tests.replaceAll(","," ")} \
+      -t ${params.cpus} \
+      > seq-tools.log 2>&1
+
+    if ls validation_report.*.jsonl 1> /dev/null 2>&1; then
+      if ls validation_report.INVALID*.jsonl 1> /dev/null 2>&1; then     
+        echo "Payload is INVALID. Please check out details in validation report under: "
+        pwd
+        exit 1
+      elif ls validation_report.UNKNOWN*.jsonl 1> /dev/null 2>&1;
+      then
+        echo "Payload is UNKNOWN. Please check out details in validation report under: "
+        pwd
+        exit 1
+      else
+        echo 0
+      fi
+    else
+      cat seq-tools.log && exit 1
+    fi
     """
 }
 
@@ -84,11 +100,9 @@ process sanityCheck {
 // this provides an entry point for this main script, so it can be run directly without clone the repo
 // using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
-  sanityCheck(
-    file(params.experiment_info_tsv),
-    params.api_token,
-    params.song_url,
-    params.clinical_url,
-    params.skip_duplicate_check
+  validateSeqtools(
+    file(params.json_file),
+    Channel.fromPath(params.files).collect(),
+    params.skippable_tests
   )
 }

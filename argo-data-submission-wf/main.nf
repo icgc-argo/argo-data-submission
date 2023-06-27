@@ -22,7 +22,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '1.0.1'
+version = '1.0.2'
 
 // universal params go here, change default value as needed
 params.container = ""
@@ -30,6 +30,7 @@ params.container_registry = ""
 params.container_version = ""
 params.cpus = 1
 params.mem = 1  // GB
+params.force = false
 params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
@@ -40,10 +41,13 @@ params.cleanup = true
 // ArgoDataSubmissionWf
 params.study_id=""
 params.download_mode="local"
-params.song_container = ""
-params.song_container_version = ""
-params.score_container = ""
-params.score_container_version = ""
+params.song_container = "ghcr.io/overture-stack/song-client"
+params.song_container_version = "5.0.2"
+params.score_container = "ghcr.io/overture-stack/score"
+params.score_container_version = "5.9.0"
+params.score_mem = 20
+params.score_cpus = 8
+params.score_force = false
 
 // sanityChecks
 params.song_url=""
@@ -129,8 +133,12 @@ egaDownload_params = [
 upload_params = [
   'max_retries': params.max_retries,
   'first_retry_wait_time': params.first_retry_wait_time,
-  'cpus': params.cpus,
-  'mem': params.mem,
+  'score_force' : params.score_force,
+  'score_cpus' : params.score_cpus,
+  'score_mem' : params.score_mem,
+  'score_transport_mem' : params.score_mem,
+  'song_cpus' : params.cpus,
+  'song_mem' : params.mem,
   'song_url': params.song_url,
   'song_container': params.song_container,
   'song_container_version': params.song_container_version,
@@ -156,15 +164,15 @@ submissionReceipt_params = [
   'mem': params.mem, 
 ]
 
-include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.2/main.nf' params(upload_params)
-include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.7/main.nf' params(validateSeq_params)
+include { SongScoreUpload as uploadWf } from './wfpr_modules/github.com/icgc-argo-workflows/nextflow-data-processing-utility-tools/song-score-upload@2.9.3/main.nf' params(upload_params)
+include { validateSeqtools as valSeq} from './wfpr_modules/github.com/icgc-argo/argo-data-submission/validate-seqtools@0.1.8/main.nf' params(validateSeq_params)
 include { EgaDownloadWf as egaWf } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/ega-download-wf@0.1.6/main.nf' params(egaDownload_params)
-include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.2/main.nf' params(payloadGen_params)
+include { payloadGenSeqExperiment as pGenExp} from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/payload-gen-seq-experiment@0.8.3/main.nf' params(payloadGen_params)
 include { cleanupWorkdir as cleanup } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/cleanup-workdir@1.0.0.1/main.nf'
 include { cram2bam } from './wfpr_modules/github.com/icgc-argo-workflows/dna-seq-processing-tools/cram2bam@0.1.0/main.nf' params(cram2bam_params)
 include { getSecondaryFiles } from './wfpr_modules/github.com/icgc-argo-workflows/data-processing-utility-tools/helper-functions@1.0.1.1/main.nf' params([*:params, 'cleanup': false])
-include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.1/main.nf' params(sanityCheck_params)
-include { payloadJsonToTsvs } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.1/main.nf' params(payloadJsonToTsvs_params)
+include { sanityCheck } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/sanity-check@0.1.3/main.nf' params(sanityCheck_params)
+include { payloadJsonToTsvs } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/payload-json-to-tsvs@0.1.2/main.nf' params(payloadJsonToTsvs_params)
 include { submissionReceipt } from './wfpr_modules/github.com/icgc-argo/argo-data-submission/submission-receipt@0.1.0/main.nf' params(submissionReceipt_params)
 // please update workflow code as needed
 
@@ -436,8 +444,6 @@ workflow ArgoDataSubmissionWf {
       uploadWf.out.analysis_id,
       submissionReceipt.out.receipt
     )
-    //Channel.from(pGenExp.out.payload).view()
-    //Channel.of(pGenExp.out.payload).view()
 
     emit:
       json_file=pGenExp.out.payload

@@ -1,7 +1,7 @@
 {
-    "name": "payload-json-to-tsvs",
-    "version": "0.1.1",
-    "description": "Converts JSON payload to 3 TSVs : Experiment,Files,Read groups",
+    "name": "validate-seqtools",
+    "version": "0.1.8",
+    "description": "Using Seq-tools, validates molecular",
     "main": "main.nf",
     "deprecated": false,
     "keywords": [
@@ -26,7 +26,7 @@
     "contributors": [
         {
             "name": "Edmund Su",
-            "email": "esu@oicr.on.ca"
+            "email": "edmund.su@oicr.on.ca"
         }
     ],
     "license": "GNU Affero General Public License v3",
