@@ -22,7 +22,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '1.0.2'
+version = '1.0.3'
 
 // universal params go here, change default value as needed
 params.container = ""
