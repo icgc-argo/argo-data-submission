@@ -22,7 +22,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '1.0.3'
+version = '1.1.0'
 
 // universal params go here, change default value as needed
 params.container = ""
@@ -44,10 +44,11 @@ params.download_mode="local"
 params.song_container = "ghcr.io/overture-stack/song-client"
 params.song_container_version = "5.0.2"
 params.score_container = "ghcr.io/overture-stack/score"
-params.score_container_version = "5.9.0"
+params.score_container_version = "5.10.0"
 params.score_mem = 20
 params.score_cpus = 8
 params.score_force = false
+params.skip_upload = false
 
 // sanityChecks
 params.song_url=""
@@ -58,7 +59,7 @@ params.api_token=""
 // payloadJsonToTsvs
 params.data_directory="NO_FILE1"
 params.skip_duplicate_check=false
-
+params.skip_sanity_check=false
 // payloadGenSeqExperiment
 params.schema_url=""
 params.experiment_info_tsv="NO_FILE2"
@@ -237,6 +238,19 @@ workflow ArgoDataSubmissionWf {
     clinical_url
   main:
 
+    if (!"${workflow.profile}".contains('docker') && !"${workflow.profile}".contains('singularity')){
+        exit 1, "Error Missing profile. `-profile` must be specified with the engines :`docker` or `singularity`."
+    }
+    if (!"${workflow.profile}".contains('rdpc_qa') && !"${workflow.profile}".contains('rdpc_dev') && !"${workflow.profile}".contains('rdpc')){
+        exit 1, "Error Missing profile. `-profile` must be specified with the rdpc environments : `rdpc_qa`,`rdpc_dev`, or `rdpc`."
+    }
+
+    if (!params.api_token){
+        if (!params.api_download_token || !params.api_upload_token) {
+            exit 1, "Error SONG parameters detected but missing token params. `--api_token` or `api_upload_token` and `api_download_token` must be supplied when uploading."
+        }
+    }
+
     if (
       og_experiment_info_tsv.startsWith("NO_FILE") && \
       og_read_group_info_tsv.startsWith("NO_FILE") && \
@@ -278,29 +292,41 @@ workflow ArgoDataSubmissionWf {
         file(data_directory)
         )
 
-      sanityCheck(
-        payloadJsonToTsvs.out.experiment_tsv,
-        api_token,
-        song_url,
-        clinical_url,
-        params.skip_duplicate_check
-      )
-      
-      experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
-      read_group_info_tsv=payloadJsonToTsvs.out.read_group_tsv
-      file_info_tsv=payloadJsonToTsvs.out.file_tsv
+      if (params.skip_sanity_check){
+        experiment_info_tsv=file(payloadJsonToTsvs.out.experiment_tsv)
+        read_group_info_tsv=file(og_read_group_info_tsv)
+        file_info_tsv=file(og_file_info_tsv)        
+      } else {
+        sanityCheck(
+          payloadJsonToTsvs.out.experiment_tsv,
+          api_token,
+          song_url,
+          clinical_url,
+          params.skip_duplicate_check
+        )
+        
+        experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
+        read_group_info_tsv=file(og_read_group_info_tsv)
+        file_info_tsv=file(og_file_info_tsv)
+      }
     } else {
-      sanityCheck(
-        file(og_experiment_info_tsv),
-        api_token,
-        song_url,
-        clinical_url,
-        params.skip_duplicate_check
-      )
-      
-      experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
-      read_group_info_tsv=file(og_read_group_info_tsv)
-      file_info_tsv=file(og_file_info_tsv)
+      if (params.skip_sanity_check){
+        experiment_info_tsv=file(og_experiment_info_tsv)
+        read_group_info_tsv=file(og_read_group_info_tsv)
+        file_info_tsv=file(og_file_info_tsv)        
+      } else {
+        sanityCheck(
+          file(og_experiment_info_tsv),
+          api_token,
+          song_url,
+          clinical_url,
+          params.skip_duplicate_check
+        )
+        
+        experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
+        read_group_info_tsv=file(og_read_group_info_tsv)
+        file_info_tsv=file(og_file_info_tsv)
+      }
     }
 
     checkCramReference(
@@ -362,20 +388,22 @@ workflow ArgoDataSubmissionWf {
         skipping_tests
       )
 
-      uploadWf(
-        study_id,
-        valSeq.out.validated_payload,
-        sequence_files.collect(),
-        ''
-      )
-
-      submissionReceipt(
+      if (!params.skip_upload){
+        uploadWf(
           study_id,
-          uploadWf.out.analysis_id,
-          song_url,
-          params.skip_submission_check,
-          sequence_files.collect()
-      )
+          valSeq.out.validated_payload,
+          sequence_files.collect(),
+          ''
+        )
+
+        submissionReceipt(
+            study_id,
+            uploadWf.out.analysis_id,
+            song_url,
+            params.skip_submission_check,
+            sequence_files.collect()
+        )
+      }
 
     } else if (checkCramReference.out.check_status && !ref_genome_fa.startsWith("NO_FILE")){
       // If reference genome is provided...
@@ -403,35 +431,36 @@ workflow ArgoDataSubmissionWf {
       sequence_files.collect().concat(cram2bam.out.output_bam.collect()).collect(),
       skipping_tests
       )
-
-      uploadWf(
-        study_id,
-        valSeq.out.validated_payload,
-        not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect(),
-        ''
-      )
-
-      submissionReceipt(
+      if (!params.skip_upload){
+        uploadWf(
           study_id,
-          uploadWf.out.analysis_id,
-          song_url,
-          params.skip_submission_check,
+          valSeq.out.validated_payload,
           not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect(),
-      )
+          ''
+        )
+
+        submissionReceipt(
+            study_id,
+            uploadWf.out.analysis_id,
+            song_url,
+            params.skip_submission_check,
+            not_cram_sequence_files.concat(cram2bam.out.output_bam.collect()).collect()
+        )
+      }
     }
-    if (params.cleanup && params.download_mode!='local' && ref_genome_fa.startsWith("NO_FILE")) {
+    if (params.cleanup && params.download_mode!='local' && ref_genome_fa.startsWith("NO_FILE") && !params.skip_upload) {
       // only cleanup the sequence files when they are not from local
       cleanup(
       sequence_files.collect(),
       submissionReceipt.out.receipt  // wait until upload is done
       )
-    } else if (params.cleanup && params.download_mode!='local' && !ref_genome_fa.startsWith("NO_FILE")){
+    } else if (params.cleanup && params.download_mode!='local' && !ref_genome_fa.startsWith("NO_FILE") && !params.skip_upload){
       // only cleanup the sequence files and cram2bam output when they are not from local
       cleanup(
       sequence_files.collect().concat(cram2bam.out.output_bam.collect()).collect(),
       submissionReceipt.out.receipt  // wait until upload is done
       )
-    } else if (params.cleanup && params.download_mode=='local' && !ref_genome_fa.startsWith("NO_FILE")){
+    } else if (params.cleanup && params.download_mode=='local' && !ref_genome_fa.startsWith("NO_FILE") && !params.skip_upload){
       // only cleanup output from cram2bam on local
       cleanup(
       cram2bam.out.output_bam.collect(),
@@ -439,16 +468,25 @@ workflow ArgoDataSubmissionWf {
       )
     }
 
-    printOut(
-      pGenExp.out.payload,
-      uploadWf.out.analysis_id,
-      submissionReceipt.out.receipt
-    )
+    if (!params.skip_upload){
+      printOut(
+        pGenExp.out.payload,
+        uploadWf.out.analysis_id,
+        submissionReceipt.out.receipt
+      )
+      out_payload = pGenExp.out.payload
+      out_analysis_id = uploadWf.out.analysis_id
+      out_receipt = submissionReceipt.out.receipt
+    } else {
+      out_payload = null
+      out_analysis_id = null
+      out_receipt = null
+    }
 
     emit:
-      json_file=pGenExp.out.payload
-      output_analysis_id=uploadWf.out.analysis_id
-      receipt=submissionReceipt.out.receipt
+      out_json_file=out_payload
+      out_output_analysis_id=out_analysis_id
+      out_receipt=out_receipt
 }
 
 // this provides an entry point for this main script, so it can be run directly without clone the repo
