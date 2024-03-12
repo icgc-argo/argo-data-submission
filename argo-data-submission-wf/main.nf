@@ -22,7 +22,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '1.1.0'
+version = '1.2.0'
 
 // universal params go here, change default value as needed
 params.container = ""
@@ -293,9 +293,9 @@ workflow ArgoDataSubmissionWf {
         )
 
       if (params.skip_sanity_check){
-        experiment_info_tsv=file(payloadJsonToTsvs.out.experiment_tsv)
-        read_group_info_tsv=file(og_read_group_info_tsv)
-        file_info_tsv=file(og_file_info_tsv)        
+        experiment_info_tsv=payloadJsonToTsvs.out.experiment_tsv
+        read_group_info_tsv=payloadJsonToTsvs.out.read_group_tsv
+        file_info_tsv=payloadJsonToTsvs.out.file_tsv       
       } else {
         sanityCheck(
           payloadJsonToTsvs.out.experiment_tsv,
@@ -306,8 +306,8 @@ workflow ArgoDataSubmissionWf {
         )
         
         experiment_info_tsv=sanityCheck.out.updated_experiment_info_tsv
-        read_group_info_tsv=file(og_read_group_info_tsv)
-        file_info_tsv=file(og_file_info_tsv)
+        read_group_info_tsv=payloadJsonToTsvs.out.read_group_tsv
+        file_info_tsv=payloadJsonToTsvs.out.file_tsv 
       }
     } else {
       if (params.skip_sanity_check){
